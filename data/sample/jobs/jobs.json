@@ -1,0 +1,780 @@
+[
+  {
+    "id": "j01",
+    "title": "Machine Learning Engineer, NLP",
+    "company": "Northstar AI",
+    "location": "Remote (EU)",
+    "seniority": "mid-senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "remote",
+    "min_years_experience": 3,
+    "max_years_experience": 6,
+    "education_level": "Bachelor's degree or equivalent experience",
+    "posted_date": "2026-09-12",
+    "source": "synthetic",
+    "summary": "We are hiring an ML engineer to build semantic search and ranking systems for our document platform.",
+    "responsibilities": [
+      "Build and evaluate semantic retrieval pipelines over millions of documents.",
+      "Fine-tune transformer models for ranking and classification.",
+      "Deploy models to production with monitoring and rollback plans.",
+      "Partner with product teams to define relevance metrics."
+    ],
+    "required_skills": [
+      "Strong Python programming",
+      "Production experience with PyTorch",
+      "Natural Language Processing (NLP)",
+      "Transformers and BERT-style models",
+      "Docker"
+    ],
+    "preferred_skills": [
+      "AWS",
+      "MLflow",
+      "FAISS",
+      "Information Retrieval"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j02",
+    "title": "Data Analyst",
+    "company": "Brightline Retail",
+    "location": "Manchester, UK",
+    "seniority": "mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 2,
+    "max_years_experience": 4,
+    "education_level": "Bachelor's degree",
+    "posted_date": "2026-09-20",
+    "source": "synthetic",
+    "summary": "Join the commercial analytics team supporting store operations and marketing.",
+    "responsibilities": [
+      "Write SQL to answer commercial questions across a PostgreSQL warehouse.",
+      "Build and maintain Tableau dashboards for weekly trading reviews.",
+      "Design and interpret A/B tests for promotional campaigns.",
+      "Present findings to non-technical stakeholders."
+    ],
+    "required_skills": [
+      "SQL",
+      "Tableau",
+      "Microsoft Excel",
+      "Data Analysis"
+    ],
+    "preferred_skills": [
+      "Python",
+      "Statistics",
+      "A/B Testing"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j03",
+    "title": "Backend Engineer (Python)",
+    "company": "Harbor Pay",
+    "location": "San Francisco, CA",
+    "seniority": "senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 4,
+    "max_years_experience": null,
+    "education_level": null,
+    "posted_date": "2026-08-30",
+    "source": "synthetic",
+    "summary": "Own payment APIs and data models on a small platform team.",
+    "responsibilities": [
+      "Design and operate Python services with FastAPI.",
+      "Model transactional data in PostgreSQL and tune slow queries.",
+      "Improve API reliability with tests, tracing and alerting.",
+      "Review API design and schemas across teams."
+    ],
+    "required_skills": [
+      "Python",
+      "FastAPI",
+      "PostgreSQL",
+      "REST APIs",
+      "Docker"
+    ],
+    "preferred_skills": [
+      "AWS",
+      "Redis",
+      "Kubernetes",
+      "Celery"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j04",
+    "title": "Senior Frontend Engineer",
+    "company": "Cobalt Studio",
+    "location": "Remote",
+    "seniority": "senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "remote",
+    "min_years_experience": 4,
+    "max_years_experience": 7,
+    "education_level": null,
+    "posted_date": "2026-09-05",
+    "source": "synthetic",
+    "summary": "Build accessible, high-performance interfaces for a large customer portal.",
+    "responsibilities": [
+      "Develop features in React and TypeScript.",
+      "Own accessibility standards across the component library.",
+      "Write unit and end-to-end tests.",
+      "Collaborate with designers on responsive layouts."
+    ],
+    "required_skills": [
+      "React",
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "Accessibility"
+    ],
+    "preferred_skills": [
+      "Jest",
+      "Cypress",
+      "Next.js",
+      "Redux"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j05",
+    "title": "Data Engineer",
+    "company": "Meridian Health Data",
+    "location": "Hyderabad, India",
+    "seniority": "mid-senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 4,
+    "max_years_experience": 7,
+    "education_level": "Bachelor's degree in a technical field",
+    "posted_date": "2026-09-18",
+    "source": "synthetic",
+    "summary": "Build pipelines that turn clinical source systems into trustworthy analytics tables.",
+    "responsibilities": [
+      "Develop batch pipelines with Apache Airflow and Apache Spark.",
+      "Model curated tables in Snowflake.",
+      "Implement data quality checks and lineage documentation.",
+      "Work with analysts to define metrics and dimensions."
+    ],
+    "required_skills": [
+      "Python",
+      "SQL",
+      "Apache Airflow",
+      "Apache Spark",
+      "Snowflake"
+    ],
+    "preferred_skills": [
+      "Kafka",
+      "dbt",
+      "AWS",
+      "Data Quality"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j06",
+    "title": "NLP Research Engineer",
+    "company": "Lingua Research Lab",
+    "location": "Berlin, Germany",
+    "seniority": "mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "onsite",
+    "min_years_experience": 3,
+    "max_years_experience": 6,
+    "education_level": "MSc or PhD in a related field",
+    "posted_date": "2026-10-01",
+    "source": "synthetic",
+    "summary": "Research and ship retrieval and question answering models for multilingual search.",
+    "responsibilities": [
+      "Fine-tune transformer models for question answering.",
+      "Design retrieval evaluation experiments.",
+      "Publish reproducible results and internal technical reports.",
+      "Collaborate with product engineers on model handover."
+    ],
+    "required_skills": [
+      "Natural Language Processing (NLP)",
+      "PyTorch",
+      "Transformers",
+      "BERT",
+      "Python"
+    ],
+    "preferred_skills": [
+      "Hugging Face Transformers",
+      "Information Retrieval",
+      "Question Answering",
+      "RoBERTa"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j07",
+    "title": "DevOps Engineer",
+    "company": "Atlas Freight",
+    "location": "Seattle, WA",
+    "seniority": "senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 5,
+    "max_years_experience": null,
+    "education_level": "Bachelor's degree",
+    "posted_date": "2026-08-22",
+    "source": "synthetic",
+    "summary": "Operate the platform that runs our logistics services across two clouds.",
+    "responsibilities": [
+      "Run Kubernetes clusters and service deployments.",
+      "Codify infrastructure with Terraform.",
+      "Build CI/CD pipelines and deployment automation.",
+      "Own monitoring, alerting and incident response."
+    ],
+    "required_skills": [
+      "Kubernetes",
+      "Terraform",
+      "AWS",
+      "Docker",
+      "CI/CD"
+    ],
+    "preferred_skills": [
+      "Prometheus",
+      "Grafana",
+      "Linux",
+      "Python"
+    ],
+    "certifications": [
+      "Certified Kubernetes Administrator"
+    ]
+  },
+  {
+    "id": "j08",
+    "title": "Junior Machine Learning Engineer",
+    "company": "Vector Health",
+    "location": "Remote (US)",
+    "seniority": "junior",
+    "employment_type": "Full-time",
+    "work_arrangement": "remote",
+    "min_years_experience": 0,
+    "max_years_experience": 2,
+    "education_level": "Bachelor's degree",
+    "posted_date": "2026-10-03",
+    "source": "synthetic",
+    "summary": "Join a small applied ML team working on clinical text classification.",
+    "responsibilities": [
+      "Train and evaluate text classification models.",
+      "Write reproducible training notebooks and evaluation reports.",
+      "Assist with model packaging and deployment."
+    ],
+    "required_skills": [
+      "Python",
+      "Machine Learning",
+      "PyTorch"
+    ],
+    "preferred_skills": [
+      "Natural Language Processing (NLP)",
+      "Docker",
+      "SQL",
+      "Pandas"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j09",
+    "title": "Business Intelligence Analyst",
+    "company": "Pacific Grove Media",
+    "location": "Los Angeles, CA",
+    "seniority": "mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 3,
+    "max_years_experience": 5,
+    "education_level": "Bachelor's degree",
+    "posted_date": "2026-09-11",
+    "source": "synthetic",
+    "summary": "Own executive reporting and metric definitions for a media portfolio.",
+    "responsibilities": [
+      "Build Power BI datasets and reports.",
+      "Define and document KPI definitions with finance partners.",
+      "Write SQL against a cloud warehouse.",
+      "Train business users on self-service reporting."
+    ],
+    "required_skills": [
+      "Power BI",
+      "SQL",
+      "Microsoft Excel",
+      "Data Analysis"
+    ],
+    "preferred_skills": [
+      "Tableau",
+      "Statistics",
+      "Business Intelligence"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j10",
+    "title": "Full-stack Engineer",
+    "company": "Verdant Commerce",
+    "location": "Sao Paulo, Brazil",
+    "seniority": "mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 3,
+    "max_years_experience": 6,
+    "education_level": null,
+    "posted_date": "2026-09-25",
+    "source": "synthetic",
+    "summary": "Ship customer-facing commerce features end to end.",
+    "responsibilities": [
+      "Build React and TypeScript interfaces.",
+      "Develop Node.js REST APIs with PostgreSQL.",
+      "Own authentication and authorization flows.",
+      "Write tests and maintain CI pipelines."
+    ],
+    "required_skills": [
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "REST APIs"
+    ],
+    "preferred_skills": [
+      "Docker",
+      "AWS",
+      "Redis",
+      "Jest"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j11",
+    "title": "Computer Vision Engineer",
+    "company": "Bavaria Robotics",
+    "location": "Munich, Germany",
+    "seniority": "mid-senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "onsite",
+    "min_years_experience": 3,
+    "max_years_experience": 6,
+    "education_level": "MSc in a technical field",
+    "posted_date": "2026-08-28",
+    "source": "synthetic",
+    "summary": "Build visual inspection models for manufacturing lines.",
+    "responsibilities": [
+      "Train and evaluate CNN detectors on industrial image data.",
+      "Deploy models to edge and cloud inference services.",
+      "Design data collection and labelling workflows.",
+      "Report model performance to operations stakeholders."
+    ],
+    "required_skills": [
+      "Python",
+      "PyTorch",
+      "Computer Vision",
+      "Convolutional Neural Networks",
+      "Deep Learning"
+    ],
+    "preferred_skills": [
+      "TensorFlow",
+      "Docker",
+      "AWS",
+      "Model Deployment"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j12",
+    "title": "MLOps Engineer",
+    "company": "Falcon Data Platform",
+    "location": "Dubai, United Arab Emirates",
+    "seniority": "senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 4,
+    "max_years_experience": 8,
+    "education_level": "Bachelor's degree",
+    "posted_date": "2026-09-29",
+    "source": "synthetic",
+    "summary": "Own the model platform used by data science teams across the company.",
+    "responsibilities": [
+      "Operate Kubernetes-based training and serving infrastructure.",
+      "Standardise experiment tracking and model deployment.",
+      "Implement monitoring for drift and service health.",
+      "Automate releases with CI/CD."
+    ],
+    "required_skills": [
+      "MLOps",
+      "Kubernetes",
+      "Docker",
+      "MLflow",
+      "Python",
+      "CI/CD"
+    ],
+    "preferred_skills": [
+      "AWS",
+      "Model Monitoring",
+      "Terraform",
+      "Prometheus"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j13",
+    "title": "Marketing Data Analyst",
+    "company": "Harbour & Co",
+    "location": "Bristol, United Kingdom",
+    "seniority": "junior-mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 2,
+    "max_years_experience": 4,
+    "education_level": null,
+    "posted_date": "2026-10-02",
+    "source": "synthetic",
+    "summary": "Measure campaign performance and help the team spend smarter.",
+    "responsibilities": [
+      "Build SQL queries and Tableau dashboards for campaign performance.",
+      "Analyse A/B tests on messaging and audiences.",
+      "Report on acquisition, retention and channel efficiency.",
+      "Maintain marketing KPI definitions."
+    ],
+    "required_skills": [
+      "SQL",
+      "Tableau",
+      "Microsoft Excel",
+      "Marketing Analytics"
+    ],
+    "preferred_skills": [
+      "A/B Testing",
+      "Python",
+      "Statistics",
+      "Communication"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j14",
+    "title": "Senior Data Scientist",
+    "company": "Lakeview Subscription Group",
+    "location": "Chicago, IL",
+    "seniority": "senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 5,
+    "max_years_experience": 9,
+    "education_level": "MSc or PhD preferred",
+    "posted_date": "2026-09-08",
+    "source": "synthetic",
+    "summary": "Design experiments and predictive models for subscription growth.",
+    "responsibilities": [
+      "Design and analyse controlled experiments.",
+      "Build and validate prediction models for churn and propensity.",
+      "Communicate results to executives.",
+      "Mentor analysts on statistical methodology."
+    ],
+    "required_skills": [
+      "Python",
+      "Statistics",
+      "Machine Learning",
+      "A/B Testing",
+      "SQL"
+    ],
+    "preferred_skills": [
+      "XGBoost",
+      "Tableau",
+      "Stakeholder Management",
+      "Mentoring"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j15",
+    "title": "AI Engineer, LLM Applications",
+    "company": "Quill AI",
+    "location": "Remote",
+    "seniority": "mid-senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "remote",
+    "min_years_experience": 3,
+    "max_years_experience": 6,
+    "education_level": null,
+    "posted_date": "2026-10-05",
+    "source": "synthetic",
+    "summary": "Build retrieval-augmented assistants over enterprise knowledge bases.",
+    "responsibilities": [
+      "Design retrieval-augmented generation pipelines.",
+      "Evaluate retrieval quality and answer groundedness.",
+      "Serve models behind low-latency APIs.",
+      "Monitor cost, latency and quality in production."
+    ],
+    "required_skills": [
+      "Python",
+      "Large Language Models",
+      "Retrieval-Augmented Generation",
+      "Transformers",
+      "Semantic Search"
+    ],
+    "preferred_skills": [
+      "FAISS",
+      "FastAPI",
+      "AWS",
+      "Model Evaluation"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j16",
+    "title": "Junior Data Analyst",
+    "company": "Copperfield Services",
+    "location": "Leeds, United Kingdom",
+    "seniority": "junior",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 0,
+    "max_years_experience": 2,
+    "education_level": "Bachelor's degree",
+    "posted_date": "2026-09-15",
+    "source": "synthetic",
+    "summary": "Start your analytics career supporting operations reporting.",
+    "responsibilities": [
+      "Build Excel and SQL reports for operations managers.",
+      "Clean and validate data before analysis.",
+      "Document assumptions and definitions.",
+      "Present simple findings clearly."
+    ],
+    "required_skills": [
+      "SQL",
+      "Microsoft Excel",
+      "Data Analysis",
+      "Communication"
+    ],
+    "preferred_skills": [
+      "Tableau",
+      "Python",
+      "Statistics"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j17",
+    "title": "Platform Engineer",
+    "company": "Northgate IT",
+    "location": "Portland, OR",
+    "seniority": "mid-senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "onsite",
+    "min_years_experience": 4,
+    "max_years_experience": 8,
+    "education_level": null,
+    "posted_date": "2026-09-01",
+    "source": "synthetic",
+    "summary": "Keep our internal platform fast, observable and easy to deploy on.",
+    "responsibilities": [
+      "Maintain Kubernetes and Docker-based runtime environments.",
+      "Automate Linux administration and patching.",
+      "Improve CI/CD reliability.",
+      "Build internal developer tooling in Python."
+    ],
+    "required_skills": [
+      "Kubernetes",
+      "Docker",
+      "Linux",
+      "CI/CD",
+      "Python"
+    ],
+    "preferred_skills": [
+      "Terraform",
+      "AWS",
+      "Prometheus",
+      "Bash"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j18",
+    "title": "Healthcare Data Analyst",
+    "company": "Meridian Health Data",
+    "location": "Remote (India)",
+    "seniority": "mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "remote",
+    "min_years_experience": 3,
+    "max_years_experience": 6,
+    "education_level": "Bachelor's degree in health or analytics",
+    "posted_date": "2026-09-22",
+    "source": "synthetic",
+    "summary": "Turn clinical and claims data into quality and utilisation insights.",
+    "responsibilities": [
+      "Analyse claims and clinical datasets with SQL and Python.",
+      "Build Tableau reports for clinical quality teams.",
+      "Apply statistical methods to compare cohorts.",
+      "Document data limitations and assumptions."
+    ],
+    "required_skills": [
+      "SQL",
+      "Python",
+      "Healthcare Analytics",
+      "Tableau",
+      "Statistics"
+    ],
+    "preferred_skills": [
+      "Data Quality",
+      "Communication",
+      "Data Analysis"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j19",
+    "title": "Fraud Data Scientist",
+    "company": "Harbor Pay",
+    "location": "New York, NY",
+    "seniority": "senior",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 4,
+    "max_years_experience": 8,
+    "education_level": "MSc preferred",
+    "posted_date": "2026-09-27",
+    "source": "synthetic",
+    "summary": "Detect payment fraud with models that balance precision and customer friction.",
+    "responsibilities": [
+      "Build supervised fraud models with XGBoost and gradient boosting.",
+      "Engineer behavioural and transaction features.",
+      "Evaluate models under severe class imbalance.",
+      "Work with risk operations on thresholds and review queues."
+    ],
+    "required_skills": [
+      "Python",
+      "Machine Learning",
+      "Fraud Detection",
+      "SQL",
+      "XGBoost"
+    ],
+    "preferred_skills": [
+      "AWS",
+      "Statistics",
+      "Model Monitoring",
+      "Feature Engineering"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j20",
+    "title": "Data Science Manager",
+    "company": "Lakeview Subscription Group",
+    "location": "Chicago, IL",
+    "seniority": "manager",
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": 6,
+    "max_years_experience": 12,
+    "education_level": "MSc preferred",
+    "posted_date": "2026-08-19",
+    "source": "synthetic",
+    "summary": "Lead a team of five data scientists supporting growth and retention.",
+    "responsibilities": [
+      "Set technical direction for experimentation and modelling.",
+      "Manage, mentor and develop data scientists.",
+      "Partner with product and finance leadership.",
+      "Own model quality and measurement standards."
+    ],
+    "required_skills": [
+      "Leadership",
+      "Machine Learning",
+      "Python",
+      "Stakeholder Management",
+      "Mentoring"
+    ],
+    "preferred_skills": [
+      "A/B Testing",
+      "Statistics",
+      "SQL",
+      "Communication"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j21",
+    "title": "QA Automation Engineer",
+    "company": "Cobalt Studio",
+    "location": "Remote",
+    "seniority": "mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "remote",
+    "min_years_experience": 3,
+    "max_years_experience": 6,
+    "education_level": null,
+    "posted_date": "2026-09-30",
+    "source": "synthetic",
+    "summary": "Own automated quality gates for a large React application.",
+    "responsibilities": [
+      "Write end-to-end tests with Playwright or Cypress.",
+      "Maintain CI pipelines and test reporting.",
+      "Build API test suites in pytest.",
+      "Advocate for testability in design reviews."
+    ],
+    "required_skills": [
+      "Test Automation",
+      "Playwright",
+      "pytest",
+      "CI/CD",
+      "JavaScript"
+    ],
+    "preferred_skills": [
+      "TypeScript",
+      "Cypress",
+      "Docker",
+      "Integration Testing"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j22",
+    "title": "Product Analyst",
+    "company": "Quill AI",
+    "location": "Remote",
+    "seniority": "mid",
+    "employment_type": "Full-time",
+    "work_arrangement": "remote",
+    "min_years_experience": 2,
+    "max_years_experience": 5,
+    "education_level": null,
+    "posted_date": "2026-10-04",
+    "source": "synthetic",
+    "summary": "Define and measure the metrics that tell us whether the product is working.",
+    "responsibilities": [
+      "Design product metrics and north-star frameworks.",
+      "Run SQL analysis on product event data.",
+      "Design and read out A/B tests.",
+      "Communicate trade-offs to product and engineering."
+    ],
+    "required_skills": [
+      "SQL",
+      "Metrics Design",
+      "A/B Testing",
+      "Communication",
+      "Data Analysis"
+    ],
+    "preferred_skills": [
+      "Tableau",
+      "Python",
+      "Statistics",
+      "Product Management"
+    ],
+    "certifications": []
+  },
+  {
+    "id": "j23",
+    "title": "Machine Learning Engineer (unstructured posting)",
+    "company": "Trellis Labs",
+    "location": "Pune, India",
+    "seniority": null,
+    "employment_type": "Full-time",
+    "work_arrangement": "hybrid",
+    "min_years_experience": null,
+    "max_years_experience": null,
+    "education_level": null,
+    "posted_date": "2026-09-06",
+    "source": "synthetic",
+    "raw_text": "Trellis Labs is looking for a machine learning engineer to join our document understanding team. You will build text classification and information retrieval services in Python, train models with PyTorch, and deploy them with Docker. Experience with transformers and NLP is essential. Familiarity with AWS and FAISS is a plus. We value clear communication and careful model evaluation.",
+    "certifications": []
+  }
+]

@@ -1,0 +1,6 @@
+pair_id,resume_id,job_id,relevance,rationale,annotator,annotated_at
+r01__j01,r01,j01,,,,
+r01__j02,r01,j02,,,,
+r02__j02,r02,j02,,,,
+r10__j04,r10,j04,,,,
+r14__j14,r14,j14,,,,

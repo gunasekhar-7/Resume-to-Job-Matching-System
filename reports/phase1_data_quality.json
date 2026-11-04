@@ -1,0 +1,403 @@
+{
+  "corpus": "synthetic-talentlens-v1",
+  "stats": {
+    "files_attempted": 26,
+    "files_parsed": 26,
+    "files_failed": 0,
+    "unique_resumes": 14,
+    "duplicates_removed": 12,
+    "status_counts": {
+      "success": 14
+    },
+    "section_presence": {
+      "summary": 14,
+      "skills": 14,
+      "experience": 14,
+      "projects": 14,
+      "education": 14,
+      "certifications": 6,
+      "publications": 3,
+      "header": 14
+    },
+    "section_coverage_pct": {
+      "certifications": 42.9,
+      "education": 100.0,
+      "experience": 100.0,
+      "header": 100.0,
+      "projects": 100.0,
+      "publications": 21.4,
+      "skills": 100.0,
+      "summary": 100.0
+    },
+    "avg_extraction_quality": 0.961,
+    "avg_skills_per_resume": 16.0,
+    "skill_mentions": 402,
+    "unique_canonical_skills": 105,
+    "warnings_top": {},
+    "failed_attempts": [],
+    "per_resume": [
+      {
+        "resume_id": "r01",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.969,
+        "chars": 2036,
+        "sections": [
+          "certifications",
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "publications",
+          "skills",
+          "summary"
+        ],
+        "skills": 25,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r02",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.968,
+        "chars": 1323,
+        "sections": [
+          "certifications",
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 12,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r03",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.966,
+        "chars": 1360,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 20,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r04",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.927,
+        "chars": 1046,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 13,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r05",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.966,
+        "chars": 1256,
+        "sections": [
+          "certifications",
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 18,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r06",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.968,
+        "chars": 1580,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "publications",
+          "skills",
+          "summary"
+        ],
+        "skills": 17,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r07",
+        "format": "docx",
+        "status": "success",
+        "quality": 0.965,
+        "chars": 1264,
+        "sections": [
+          "certifications",
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 18,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r08",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.966,
+        "chars": 1310,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 13,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r09",
+        "format": "docx",
+        "status": "success",
+        "quality": 0.968,
+        "chars": 1286,
+        "sections": [
+          "certifications",
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 10,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r10",
+        "format": "docx",
+        "status": "success",
+        "quality": 0.941,
+        "chars": 1132,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 17,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r11",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.967,
+        "chars": 1311,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "publications",
+          "skills",
+          "summary"
+        ],
+        "skills": 13,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r12",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.963,
+        "chars": 1295,
+        "sections": [
+          "certifications",
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 20,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r13",
+        "format": "docx",
+        "status": "success",
+        "quality": 0.943,
+        "chars": 1172,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 11,
+        "warnings": 0
+      },
+      {
+        "resume_id": "r14",
+        "format": "pdf",
+        "status": "success",
+        "quality": 0.97,
+        "chars": 1325,
+        "sections": [
+          "education",
+          "experience",
+          "header",
+          "projects",
+          "skills",
+          "summary"
+        ],
+        "skills": 17,
+        "warnings": 0
+      }
+    ]
+  },
+  "duplicates": [
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r01_priya_single.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r01_priya_single.docx",
+      "resume_id": "r01",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "606a680d749c0392"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r02_daniel_single.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r02_daniel_single.docx",
+      "resume_id": "r02",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "98836f4e63aa0c45"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r03_mei_single.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r03_mei_single.docx",
+      "resume_id": "r03",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "4d8ae046c40decb3"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r04_sofia_two_column.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r04_sofia_two_column.docx",
+      "resume_id": "r04",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "1b6bdfa3bcf3d7c5"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r05_arjun_single.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r05_arjun_single.docx",
+      "resume_id": "r05",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "0759ae38cc0de49d"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r07_marcus_single.docx",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r07_marcus_single.pdf",
+      "resume_id": "r07",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "2df2c1dc8f63a443"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r08_aisha_single.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r08_aisha_single.docx",
+      "resume_id": "r08",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "559c8f0e3b83643f"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r09_thomas_table_skills.docx",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r09_thomas_table_skills.pdf",
+      "resume_id": "r09",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "27d5fe9b8b0b0981"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r10_lucas_single.docx",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r10_lucas_single.pdf",
+      "resume_id": "r10",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "c4290d71589e0cb8"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r12_omar_single.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r12_omar_single.docx",
+      "resume_id": "r12",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "e90834dc7cec3329"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r13_grace_single.docx",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r13_grace_single.pdf",
+      "resume_id": "r13",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "6b4ec6367292d570"
+    },
+    {
+      "kept": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r14_robert_two_column.pdf",
+      "duplicate": "C:\\Projects\\Resume-to-Job Matching System\\data\\sample\\resumes\\r14_robert_two_column.docx",
+      "resume_id": "r14",
+      "reason": "same resume, alternate format",
+      "text_fingerprint": "0acc21d231cf0a65"
+    }
+  ],
+  "error_fixtures": [
+    {
+      "file": "corrupt.pdf",
+      "outcome": "rejected",
+      "code": "corrupt_document",
+      "message": "Could not open PDF 'corrupt.pdf': FileDataError"
+    },
+    {
+      "file": "empty.pdf",
+      "outcome": "failed",
+      "code": "low_text",
+      "message": "No extractable text found; the document may be scanned or image-only; Parsing failed: no usable text content"
+    },
+    {
+      "file": "not_a_resume.exe",
+      "outcome": "rejected",
+      "code": "unsupported_file_type",
+      "message": "Unsupported file type '.exe'. Allowed: .docx, .pdf, .txt"
+    },
+    {
+      "file": "scanned.pdf",
+      "outcome": "failed",
+      "code": "low_text",
+      "message": "No extractable text found; the document may be scanned or image-only; Parsing failed: no usable text content"
+    }
+  ],
+  "outputs": {
+    "corpus": "data\\processed\\resumes.jsonl"
+  }
+}

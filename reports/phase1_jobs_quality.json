@@ -1,0 +1,685 @@
+{
+  "json_import": {
+    "imported": 23,
+    "rejected": 0,
+    "duplicates": 23,
+    "required_skills_total": 108,
+    "preferred_skills_total": 94,
+    "jobs_without_required_skills": 0,
+    "top_warnings": {
+      "Skills mentioned only in descriptive text recorded as preferred": 1,
+      "2 skill(s) appeared as both required and preferred; kept as required": 1
+    }
+  },
+  "csv_import": {
+    "imported": 23,
+    "rejected": 0,
+    "duplicates": 0,
+    "required_skills_total": 108,
+    "preferred_skills_total": 94,
+    "jobs_without_required_skills": 0,
+    "top_warnings": {
+      "Skills mentioned only in descriptive text recorded as preferred": 1,
+      "2 skill(s) appeared as both required and preferred; kept as required": 1
+    }
+  },
+  "repeat_import": {
+    "imported": 23,
+    "rejected": 0,
+    "duplicates": 23,
+    "required_skills_total": 108,
+    "preferred_skills_total": 94,
+    "jobs_without_required_skills": 0,
+    "top_warnings": {
+      "Skills mentioned only in descriptive text recorded as preferred": 1,
+      "2 skill(s) appeared as both required and preferred; kept as required": 1
+    }
+  },
+  "rejected": [],
+  "duplicates": [
+    {
+      "job_id": "j01",
+      "duplicate_of": "j01",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j02",
+      "duplicate_of": "j02",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j03",
+      "duplicate_of": "j03",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j04",
+      "duplicate_of": "j04",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j05",
+      "duplicate_of": "j05",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j06",
+      "duplicate_of": "j06",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j07",
+      "duplicate_of": "j07",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j08",
+      "duplicate_of": "j08",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j09",
+      "duplicate_of": "j09",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j10",
+      "duplicate_of": "j10",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j11",
+      "duplicate_of": "j11",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j12",
+      "duplicate_of": "j12",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j13",
+      "duplicate_of": "j13",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j14",
+      "duplicate_of": "j14",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j15",
+      "duplicate_of": "j15",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j16",
+      "duplicate_of": "j16",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j17",
+      "duplicate_of": "j17",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j18",
+      "duplicate_of": "j18",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j19",
+      "duplicate_of": "j19",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j20",
+      "duplicate_of": "j20",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j21",
+      "duplicate_of": "j21",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j22",
+      "duplicate_of": "j22",
+      "reason": "identical content hash"
+    },
+    {
+      "job_id": "j23",
+      "duplicate_of": "j23",
+      "reason": "identical content hash"
+    }
+  ],
+  "jobs": [
+    {
+      "job_id": "j01",
+      "title": "Machine Learning Engineer, NLP",
+      "company": "Northstar AI",
+      "seniority": "mid-senior",
+      "work_arrangement": "remote",
+      "min_years": 3.0,
+      "max_years": 6.0,
+      "required": [
+        "Python",
+        "PyTorch",
+        "Natural Language Processing",
+        "Transformers",
+        "BERT",
+        "Docker"
+      ],
+      "preferred": [
+        "AWS",
+        "MLflow",
+        "FAISS",
+        "Information Retrieval"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j02",
+      "title": "Data Analyst",
+      "company": "Brightline Retail",
+      "seniority": "mid",
+      "work_arrangement": "hybrid",
+      "min_years": 2.0,
+      "max_years": 4.0,
+      "required": [
+        "SQL",
+        "Tableau",
+        "Microsoft Excel",
+        "Data Analysis"
+      ],
+      "preferred": [
+        "Python",
+        "Statistics",
+        "A/B Testing"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j03",
+      "title": "Backend Engineer (Python)",
+      "company": "Harbor Pay",
+      "seniority": "senior",
+      "work_arrangement": "hybrid",
+      "min_years": 4.0,
+      "max_years": null,
+      "required": [
+        "Python",
+        "FastAPI",
+        "PostgreSQL",
+        "REST APIs",
+        "Docker"
+      ],
+      "preferred": [
+        "AWS",
+        "Redis",
+        "Kubernetes",
+        "Celery"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j04",
+      "title": "Senior Frontend Engineer",
+      "company": "Cobalt Studio",
+      "seniority": "senior",
+      "work_arrangement": "remote",
+      "min_years": 4.0,
+      "max_years": 7.0,
+      "required": [
+        "React",
+        "TypeScript",
+        "CSS",
+        "HTML",
+        "Accessibility"
+      ],
+      "preferred": [
+        "Jest",
+        "Cypress",
+        "Next.js",
+        "Redux"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j05",
+      "title": "Data Engineer",
+      "company": "Meridian Health Data",
+      "seniority": "mid-senior",
+      "work_arrangement": "hybrid",
+      "min_years": 4.0,
+      "max_years": 7.0,
+      "required": [
+        "Python",
+        "SQL",
+        "Apache Airflow",
+        "Apache Spark",
+        "Snowflake"
+      ],
+      "preferred": [
+        "Apache Kafka",
+        "dbt",
+        "AWS",
+        "Data Quality"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j06",
+      "title": "NLP Research Engineer",
+      "company": "Lingua Research Lab",
+      "seniority": "mid",
+      "work_arrangement": "onsite",
+      "min_years": 3.0,
+      "max_years": 6.0,
+      "required": [
+        "Natural Language Processing",
+        "PyTorch",
+        "Transformers",
+        "BERT",
+        "Python"
+      ],
+      "preferred": [
+        "Hugging Face Transformers",
+        "Information Retrieval",
+        "Question Answering",
+        "RoBERTa"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j07",
+      "title": "DevOps Engineer",
+      "company": "Atlas Freight",
+      "seniority": "senior",
+      "work_arrangement": "hybrid",
+      "min_years": 5.0,
+      "max_years": null,
+      "required": [
+        "Kubernetes",
+        "Terraform",
+        "AWS",
+        "Docker",
+        "CI/CD"
+      ],
+      "preferred": [
+        "Prometheus",
+        "Grafana",
+        "Linux",
+        "Python"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j08",
+      "title": "Junior Machine Learning Engineer",
+      "company": "Vector Health",
+      "seniority": "junior",
+      "work_arrangement": "remote",
+      "min_years": 0.0,
+      "max_years": 2.0,
+      "required": [
+        "Python",
+        "Machine Learning",
+        "PyTorch"
+      ],
+      "preferred": [
+        "Natural Language Processing",
+        "Docker",
+        "SQL",
+        "Pandas"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j09",
+      "title": "Business Intelligence Analyst",
+      "company": "Pacific Grove Media",
+      "seniority": "mid",
+      "work_arrangement": "hybrid",
+      "min_years": 3.0,
+      "max_years": 5.0,
+      "required": [
+        "Power BI",
+        "SQL",
+        "Microsoft Excel",
+        "Data Analysis"
+      ],
+      "preferred": [
+        "Tableau",
+        "Statistics",
+        "Business Intelligence"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j10",
+      "title": "Full-stack Engineer",
+      "company": "Verdant Commerce",
+      "seniority": "mid",
+      "work_arrangement": "hybrid",
+      "min_years": 3.0,
+      "max_years": 6.0,
+      "required": [
+        "React",
+        "Node.js",
+        "TypeScript",
+        "PostgreSQL",
+        "REST APIs"
+      ],
+      "preferred": [
+        "Docker",
+        "AWS",
+        "Redis",
+        "Jest"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j11",
+      "title": "Computer Vision Engineer",
+      "company": "Bavaria Robotics",
+      "seniority": "mid-senior",
+      "work_arrangement": "onsite",
+      "min_years": 3.0,
+      "max_years": 6.0,
+      "required": [
+        "Python",
+        "PyTorch",
+        "Computer Vision",
+        "Convolutional Neural Networks",
+        "Deep Learning"
+      ],
+      "preferred": [
+        "TensorFlow",
+        "Docker",
+        "AWS",
+        "Model Deployment"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j12",
+      "title": "MLOps Engineer",
+      "company": "Falcon Data Platform",
+      "seniority": "senior",
+      "work_arrangement": "hybrid",
+      "min_years": 4.0,
+      "max_years": 8.0,
+      "required": [
+        "MLOps",
+        "Kubernetes",
+        "Docker",
+        "MLflow",
+        "Python",
+        "CI/CD"
+      ],
+      "preferred": [
+        "AWS",
+        "Model Monitoring",
+        "Terraform",
+        "Prometheus"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j13",
+      "title": "Marketing Data Analyst",
+      "company": "Harbour & Co",
+      "seniority": "junior-mid",
+      "work_arrangement": "hybrid",
+      "min_years": 2.0,
+      "max_years": 4.0,
+      "required": [
+        "SQL",
+        "Tableau",
+        "Microsoft Excel",
+        "Marketing Analytics"
+      ],
+      "preferred": [
+        "A/B Testing",
+        "Python",
+        "Statistics",
+        "Communication"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j14",
+      "title": "Senior Data Scientist",
+      "company": "Lakeview Subscription Group",
+      "seniority": "senior",
+      "work_arrangement": "hybrid",
+      "min_years": 5.0,
+      "max_years": 9.0,
+      "required": [
+        "Python",
+        "Statistics",
+        "Machine Learning",
+        "A/B Testing",
+        "SQL"
+      ],
+      "preferred": [
+        "XGBoost",
+        "Tableau",
+        "Stakeholder Management",
+        "Mentoring"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j15",
+      "title": "AI Engineer, LLM Applications",
+      "company": "Quill AI",
+      "seniority": "mid-senior",
+      "work_arrangement": "remote",
+      "min_years": 3.0,
+      "max_years": 6.0,
+      "required": [
+        "Python",
+        "Large Language Models",
+        "Retrieval-Augmented Generation",
+        "Transformers",
+        "Semantic Search"
+      ],
+      "preferred": [
+        "FAISS",
+        "FastAPI",
+        "AWS",
+        "Model Evaluation"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j16",
+      "title": "Junior Data Analyst",
+      "company": "Copperfield Services",
+      "seniority": "junior",
+      "work_arrangement": "hybrid",
+      "min_years": 0.0,
+      "max_years": 2.0,
+      "required": [
+        "SQL",
+        "Microsoft Excel",
+        "Data Analysis",
+        "Communication"
+      ],
+      "preferred": [
+        "Tableau",
+        "Python",
+        "Statistics"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j17",
+      "title": "Platform Engineer",
+      "company": "Northgate IT",
+      "seniority": "mid-senior",
+      "work_arrangement": "onsite",
+      "min_years": 4.0,
+      "max_years": 8.0,
+      "required": [
+        "Kubernetes",
+        "Docker",
+        "Linux",
+        "CI/CD",
+        "Python"
+      ],
+      "preferred": [
+        "Terraform",
+        "AWS",
+        "Prometheus",
+        "Bash"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j18",
+      "title": "Healthcare Data Analyst",
+      "company": "Meridian Health Data",
+      "seniority": "mid",
+      "work_arrangement": "remote",
+      "min_years": 3.0,
+      "max_years": 6.0,
+      "required": [
+        "SQL",
+        "Python",
+        "Healthcare Analytics",
+        "Tableau",
+        "Statistics"
+      ],
+      "preferred": [
+        "Data Quality",
+        "Communication",
+        "Data Analysis"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j19",
+      "title": "Fraud Data Scientist",
+      "company": "Harbor Pay",
+      "seniority": "senior",
+      "work_arrangement": "hybrid",
+      "min_years": 4.0,
+      "max_years": 8.0,
+      "required": [
+        "Python",
+        "Machine Learning",
+        "Fraud Detection",
+        "SQL",
+        "XGBoost"
+      ],
+      "preferred": [
+        "AWS",
+        "Statistics",
+        "Model Monitoring",
+        "Feature Engineering"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j20",
+      "title": "Data Science Manager",
+      "company": "Lakeview Subscription Group",
+      "seniority": "manager",
+      "work_arrangement": "hybrid",
+      "min_years": 6.0,
+      "max_years": 12.0,
+      "required": [
+        "Leadership",
+        "Machine Learning",
+        "Python",
+        "Stakeholder Management",
+        "Mentoring"
+      ],
+      "preferred": [
+        "A/B Testing",
+        "Statistics",
+        "SQL",
+        "Communication"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j21",
+      "title": "QA Automation Engineer",
+      "company": "Cobalt Studio",
+      "seniority": "mid",
+      "work_arrangement": "remote",
+      "min_years": 3.0,
+      "max_years": 6.0,
+      "required": [
+        "Test Automation",
+        "Playwright",
+        "pytest",
+        "CI/CD",
+        "JavaScript"
+      ],
+      "preferred": [
+        "TypeScript",
+        "Cypress",
+        "Docker",
+        "Integration Testing"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j22",
+      "title": "Product Analyst",
+      "company": "Quill AI",
+      "seniority": "mid",
+      "work_arrangement": "remote",
+      "min_years": 2.0,
+      "max_years": 5.0,
+      "required": [
+        "SQL",
+        "Metrics Design",
+        "A/B Testing",
+        "Communication",
+        "Data Analysis"
+      ],
+      "preferred": [
+        "Tableau",
+        "Python",
+        "Statistics",
+        "Product Management"
+      ],
+      "warnings": []
+    },
+    {
+      "job_id": "j23",
+      "title": "Machine Learning Engineer (unstructured posting)",
+      "company": "Trellis Labs",
+      "seniority": null,
+      "work_arrangement": "hybrid",
+      "min_years": null,
+      "max_years": null,
+      "required": [
+        "Transformers",
+        "Natural Language Processing"
+      ],
+      "preferred": [
+        "AWS",
+        "FAISS",
+        "Machine Learning",
+        "Text Classification",
+        "Information Retrieval",
+        "Python",
+        "PyTorch",
+        "Docker",
+        "Communication",
+        "Model Evaluation"
+      ],
+      "warnings": [
+        "Skills mentioned only in descriptive text recorded as preferred",
+        "2 skill(s) appeared as both required and preferred; kept as required"
+      ]
+    }
+  ]
+}

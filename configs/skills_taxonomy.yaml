@@ -1,0 +1,801 @@
+# TalentLens skill taxonomy.
+#
+# Purpose
+# -------
+# Canonical skill names, categories, aliases and an explicit (conservative)
+# related-skill credit map used by the matching engine.
+#
+# Provenance
+# ----------
+# This taxonomy was authored for TalentLens, informed by the public skill
+# categories described by ESCO (European Skills, Competences, Qualifications
+# and Occupations) and O*NET (Occupations and Skills). No ESCO/O*NET data files
+# are redistributed here, and neither dataset is bundled. ESCO is published by
+# the European Commission; O*NET by the U.S. Department of Labor. Anyone
+# redistributing derived data must review those licences/terms separately.
+# See docs/DATASET_CARD.md for the full provenance statement.
+#
+# Design rules
+# ------------
+# 1. A canonical name must be unambiguous ("Go", "C", "R" are case sensitive).
+# 2. Aliases never include generic single letters that would produce false
+#    positives in prose.
+# 3. `related` credit is partial and conservative. It exists so a genuinely
+#    transferable technology is not scored as a total miss, never to inflate a
+#    loosely related tool to a full exact match.
+# 4. Adding a skill here does not imply proficiency; extraction always records
+#    the resume section and evidence span.
+
+version: "1.0.0"
+updated: "2026-11-04"
+
+categories:
+  programming_languages: "Programming Languages"
+  machine_learning: "Machine Learning"
+  deep_learning: "Deep Learning"
+  nlp: "Natural Language Processing"
+  data_engineering: "Data Engineering"
+  databases: "Databases & Vector Stores"
+  cloud: "Cloud Platforms"
+  devops: "DevOps & Infrastructure"
+  backend: "Backend Development"
+  frontend: "Frontend Development"
+  testing: "Testing & Quality"
+  data_analytics: "Data Analytics & Visualization"
+  mlops: "MLOps & Model Operations"
+  professional: "Professional & Collaboration Skills"
+  domain: "Domain Knowledge"
+
+skills:
+  # ---------------- Programming languages ----------------
+  - name: Python
+    category: programming_languages
+    aliases: ["python3", "python 3", "python2", "python 2"]
+  - name: Java
+    category: programming_languages
+    aliases: ["java 8", "java 11", "java 17"]
+  - name: JavaScript
+    category: programming_languages
+    aliases: ["js", "javascript", "java script"]
+  - name: TypeScript
+    category: programming_languages
+    aliases: ["ts", "typescript", "type script"]
+  - name: C
+    category: programming_languages
+    case_sensitive: true
+    aliases: []
+  - name: C++
+    category: programming_languages
+    aliases: ["cpp", "c plus plus", "cplusplus"]
+  - name: C#
+    category: programming_languages
+    aliases: ["csharp", "c sharp", ".net c#"]
+  - name: Go
+    category: programming_languages
+    case_sensitive: true
+    aliases: ["golang"]
+  - name: Rust
+    category: programming_languages
+    aliases: ["rustlang"]
+  - name: Ruby
+    category: programming_languages
+    aliases: []
+  - name: PHP
+    category: programming_languages
+    aliases: []
+  - name: Scala
+    category: programming_languages
+    aliases: []
+  - name: Kotlin
+    category: programming_languages
+    aliases: []
+  - name: Swift
+    category: programming_languages
+    case_sensitive: true
+    aliases: ["swiftui"]
+  - name: R
+    category: programming_languages
+    case_sensitive: true
+    aliases: []
+  - name: SQL
+    category: programming_languages
+    aliases: ["ansi sql", "t-sql", "pl/sql"]
+  - name: Bash
+    category: programming_languages
+    aliases: ["shell scripting", "shell script", "zsh"]
+  - name: MATLAB
+    category: programming_languages
+    aliases: []
+  - name: Julia
+    category: programming_languages
+    aliases: []
+
+  # ---------------- Machine learning ----------------
+  - name: Machine Learning
+    category: machine_learning
+    aliases: ["ml", "statistical learning", "machine-learning"]
+  - name: Scikit-Learn
+    category: machine_learning
+    aliases: ["sklearn", "scikit learn", "scikit-learn"]
+  - name: Supervised Learning
+    category: machine_learning
+    aliases: ["supervised models"]
+  - name: Unsupervised Learning
+    category: machine_learning
+    aliases: ["clustering", "unsupervised models"]
+  - name: Reinforcement Learning
+    category: machine_learning
+    aliases: ["rl", "reinforcement-learning"]
+  - name: Feature Engineering
+    category: machine_learning
+    aliases: ["feature extraction", "feature selection"]
+  - name: Model Evaluation
+    category: machine_learning
+    aliases: ["model validation", "cross-validation", "cross validation"]
+  - name: Hyperparameter Tuning
+    category: machine_learning
+    aliases: ["hyperparameter optimization", "hyperparameter optimisation", "grid search"]
+  - name: Time Series Forecasting
+    category: machine_learning
+    aliases: ["time-series forecasting", "forecasting models", "demand forecasting"]
+  - name: Recommender Systems
+    category: machine_learning
+    aliases: ["recommendation systems", "recommendation engine", "recommender system"]
+  - name: Computer Vision
+    category: machine_learning
+    aliases: ["cv models", "image classification", "object detection"]
+  - name: Generative AI
+    category: machine_learning
+    aliases: ["genai", "generative artificial intelligence"]
+  - name: Large Language Models
+    category: machine_learning
+    aliases: ["llm", "llms", "large language model", "foundation models"]
+  - name: XGBoost
+    category: machine_learning
+    aliases: ["xg boost", "xgboost classifier"]
+  - name: LightGBM
+    category: machine_learning
+    aliases: ["light gbm", "lgbm"]
+  - name: Random Forest
+    category: machine_learning
+    aliases: ["random forests"]
+  - name: Support Vector Machines
+    category: machine_learning
+    aliases: ["svm", "svms"]
+  - name: Principal Component Analysis
+    category: machine_learning
+    aliases: ["pca", "dimensionality reduction"]
+  - name: K-Means
+    category: machine_learning
+    aliases: ["kmeans", "k means"]
+
+  # ---------------- Deep learning ----------------
+  - name: Deep Learning
+    category: deep_learning
+    aliases: ["dl", "neural networks", "neural nets"]
+  - name: PyTorch
+    category: deep_learning
+    aliases: ["py torch", "torch"]
+  - name: TensorFlow
+    category: deep_learning
+    aliases: ["tf", "tensor flow"]
+  - name: Keras
+    category: deep_learning
+    aliases: []
+  - name: JAX
+    category: deep_learning
+    aliases: []
+  - name: Convolutional Neural Networks
+    category: deep_learning
+    aliases: ["cnn", "cnns", "convnets"]
+  - name: Recurrent Neural Networks
+    category: deep_learning
+    aliases: ["rnn", "rnns"]
+  - name: LSTM
+    category: deep_learning
+    aliases: ["lstms", "long short-term memory"]
+  - name: Transformers
+    category: deep_learning
+    aliases: ["transformer architecture", "transformer models", "transformer model"]
+  - name: Generative Adversarial Networks
+    category: deep_learning
+    aliases: ["gan", "gans"]
+  - name: Diffusion Models
+    category: deep_learning
+    aliases: ["stable diffusion", "diffusion model"]
+  - name: Transfer Learning
+    category: deep_learning
+    aliases: ["fine-tuning", "fine tuning", "finetuning"]
+  - name: Hugging Face Transformers
+    category: deep_learning
+    aliases: ["huggingface transformers", "huggingface", "hugging face"]
+  - name: Model Quantization
+    category: deep_learning
+    aliases: ["quantization", "quantisation", "int8 quantization"]
+
+  # ---------------- NLP ----------------
+  - name: Natural Language Processing
+    category: nlp
+    aliases: ["nlp", "natural-language processing", "text mining"]
+  - name: Text Classification
+    category: nlp
+    aliases: ["text categorization", "document classification"]
+  - name: Named Entity Recognition
+    category: nlp
+    aliases: ["ner", "entity extraction"]
+  - name: Sentiment Analysis
+    category: nlp
+    aliases: ["opinion mining"]
+  - name: Topic Modeling
+    category: nlp
+    aliases: ["topic modelling", "lda"]
+  - name: Information Retrieval
+    category: nlp
+    aliases: ["ir", "search ranking", "document retrieval"]
+  - name: Semantic Search
+    category: nlp
+    aliases: ["vector search", "semantic retrieval", "neural search"]
+  - name: Question Answering
+    category: nlp
+    aliases: ["qa systems", "extractive qa"]
+  - name: Machine Translation
+    category: nlp
+    aliases: ["mt systems", "translation models"]
+  - name: Tokenization
+    category: nlp
+    aliases: ["tokenisation", "tokenizer"]
+  - name: Word Embeddings
+    category: nlp
+    aliases: ["word2vec", "glove", "fasttext"]
+  - name: BERT
+    category: nlp
+    case_sensitive: true
+    aliases: ["bert models", "bert-based"]
+  - name: RoBERTa
+    category: nlp
+    case_sensitive: true
+    aliases: []
+  - name: Sentence Transformers
+    category: nlp
+    aliases: ["sentence-transformers", "sbert", "bi-encoder"]
+  - name: Retrieval-Augmented Generation
+    category: nlp
+    aliases: ["rag", "retrieval augmented generation"]
+  - name: Text Summarization
+    category: nlp
+    aliases: ["summarisation", "summarization"]
+  - name: spaCy
+    category: nlp
+    case_sensitive: true
+    aliases: ["spacy nlp"]
+  - name: NLTK
+    category: nlp
+    case_sensitive: true
+    aliases: []
+
+  # ---------------- Data engineering ----------------
+  - name: ETL
+    category: data_engineering
+    aliases: ["etl pipelines", "extract transform load"]
+  - name: Data Pipelines
+    category: data_engineering
+    aliases: ["data pipeline", "batch pipelines", "pipeline orchestration"]
+  - name: Apache Airflow
+    category: data_engineering
+    aliases: ["airflow", "apache airflow"]
+  - name: dbt
+    category: data_engineering
+    case_sensitive: true
+    aliases: ["data build tool"]
+  - name: Apache Spark
+    category: data_engineering
+    aliases: ["spark", "apache spark"]
+  - name: PySpark
+    category: data_engineering
+    aliases: ["pyspark", "spark sql"]
+  - name: Apache Kafka
+    category: data_engineering
+    aliases: ["kafka", "event streaming"]
+  - name: Hadoop
+    category: data_engineering
+    aliases: ["hdfs", "mapreduce"]
+  - name: Data Warehousing
+    category: data_engineering
+    aliases: ["data warehouse", "warehouse modeling"]
+  - name: Data Modeling
+    category: data_engineering
+    aliases: ["data modelling", "dimensional modeling", "schema design"]
+  - name: Data Quality
+    category: data_engineering
+    aliases: ["data validation", "data integrity", "data quality checks"]
+  - name: Data Governance
+    category: data_engineering
+    aliases: ["data lineage", "data catalog", "data catalogue"]
+  - name: Snowflake
+    category: data_engineering
+    aliases: []
+  - name: BigQuery
+    category: data_engineering
+    aliases: ["google bigquery"]
+  - name: Amazon Redshift
+    category: data_engineering
+    aliases: ["redshift"]
+  - name: Databricks
+    category: data_engineering
+    aliases: ["delta lake", "unity catalog"]
+  - name: Parquet
+    category: data_engineering
+    aliases: ["columnar storage", "apache parquet"]
+  - name: Streaming Data
+    category: data_engineering
+    aliases: ["stream processing", "real-time data", "real time data"]
+  - name: DuckDB
+    category: data_engineering
+    aliases: []
+
+  # ---------------- Databases & vector stores ----------------
+  - name: PostgreSQL
+    category: databases
+    aliases: ["postgres", "psql", "postgresql 15", "postgresql 16"]
+  - name: MySQL
+    category: databases
+    aliases: ["mariadb"]
+  - name: SQLite
+    category: databases
+    aliases: []
+  - name: MongoDB
+    category: databases
+    aliases: ["mongo"]
+  - name: Redis
+    category: databases
+    aliases: ["redis cache"]
+  - name: Elasticsearch
+    category: databases
+    aliases: ["elastic search", "opensearch"]
+  - name: Oracle Database
+    category: databases
+    aliases: ["oracle db", "oracle 19c"]
+  - name: Microsoft SQL Server
+    category: databases
+    aliases: ["sql server", "mssql"]
+  - name: Cassandra
+    category: databases
+    aliases: ["apache cassandra"]
+  - name: DynamoDB
+    category: databases
+    aliases: ["aws dynamodb"]
+  - name: Neo4j
+    category: databases
+    aliases: ["graph database"]
+  - name: FAISS
+    category: databases
+    case_sensitive: true
+    aliases: ["facebook faiss", "faiss index"]
+  - name: Pinecone
+    category: databases
+    aliases: []
+  - name: Weaviate
+    category: databases
+    aliases: []
+  - name: ChromaDB
+    category: databases
+    aliases: ["chroma", "chromadb"]
+  - name: pgvector
+    category: databases
+    aliases: ["pg vector"]
+  - name: Milvus
+    category: databases
+    aliases: []
+
+  # ---------------- Cloud ----------------
+  - name: AWS
+    category: cloud
+    aliases: ["amazon web services", "aws cloud"]
+  - name: Microsoft Azure
+    category: cloud
+    aliases: ["azure", "azure cloud"]
+  - name: Google Cloud Platform
+    category: cloud
+    aliases: ["gcp", "google cloud"]
+  - name: Amazon S3
+    category: cloud
+    aliases: ["s3", "aws s3"]
+  - name: AWS Lambda
+    category: cloud
+    aliases: ["lambda functions", "serverless functions"]
+  - name: Amazon EKS
+    category: cloud
+    aliases: ["eks", "elastic kubernetes service"]
+  - name: Amazon SageMaker
+    category: cloud
+    aliases: ["sagemaker"]
+  - name: Vertex AI
+    category: cloud
+    aliases: ["google vertex ai", "vertex"]
+  - name: Cloud Run
+    category: cloud
+    aliases: ["google cloud run"]
+  - name: Serverless
+    category: cloud
+    aliases: ["serverless architecture", "faas"]
+
+  # ---------------- DevOps ----------------
+  - name: Docker
+    category: devops
+    aliases: ["dockerfile", "containerization", "containerisation", "docker compose"]
+  - name: Kubernetes
+    category: devops
+    aliases: ["k8s", "kube"]
+  - name: Terraform
+    category: devops
+    aliases: ["infrastructure as code", "iac"]
+  - name: Ansible
+    category: devops
+    aliases: []
+  - name: Jenkins
+    category: devops
+    aliases: []
+  - name: GitHub Actions
+    category: devops
+    aliases: ["gh actions", "github action"]
+  - name: GitLab CI
+    category: devops
+    aliases: ["gitlab pipelines", "gitlab ci/cd"]
+  - name: CI/CD
+    category: devops
+    aliases: ["ci cd", "continuous integration", "continuous delivery", "continuous deployment"]
+  - name: Prometheus
+    category: devops
+    aliases: ["prometheus metrics"]
+  - name: Grafana
+    category: devops
+    aliases: ["grafana dashboards"]
+  - name: Datadog
+    category: devops
+    aliases: ["data dog"]
+  - name: ELK Stack
+    category: devops
+    aliases: ["elastic stack", "kibana", "logstash"]
+  - name: Nginx
+    category: devops
+    aliases: ["nginx reverse proxy"]
+  - name: Linux
+    category: devops
+    aliases: ["ubuntu", "debian", "unix systems"]
+  - name: Helm
+    category: devops
+    aliases: ["helm charts"]
+  - name: Argo CD
+    category: devops
+    aliases: ["argocd", "argo cd"]
+
+  # ---------------- Backend ----------------
+  - name: REST APIs
+    category: backend
+    aliases: ["rest api", "restful apis", "restful api", "rest services"]
+  - name: GraphQL
+    category: backend
+    aliases: ["graph ql"]
+  - name: gRPC
+    category: backend
+    aliases: ["grpc"]
+  - name: FastAPI
+    category: backend
+    case_sensitive: true
+    aliases: ["fast api"]
+  - name: Flask
+    category: backend
+    case_sensitive: true
+    aliases: []
+  - name: Django
+    category: backend
+    aliases: ["django rest framework", "drf"]
+  - name: Spring Boot
+    category: backend
+    aliases: ["springboot", "spring framework"]
+  - name: Node.js
+    category: backend
+    aliases: ["nodejs", "node js", "node"]
+  - name: Microservices
+    category: backend
+    aliases: ["micro services", "microservice architecture"]
+  - name: Message Queues
+    category: backend
+    aliases: ["rabbitmq", "sqs", "pub/sub", "message broker"]
+  - name: Celery
+    category: backend
+    aliases: ["celery tasks"]
+  - name: Authentication
+    category: backend
+    aliases: ["oauth", "oauth2", "jwt", "sso", "openid connect"]
+  - name: WebSockets
+    category: backend
+    aliases: ["websocket", "socket.io"]
+  - name: API Design
+    category: backend
+    aliases: ["api architecture", "openapi", "swagger"]
+  - name: Caching
+    category: backend
+    aliases: ["cache design", "redis caching", "memcached"]
+
+  # ---------------- Frontend ----------------
+  - name: React
+    category: frontend
+    aliases: ["react.js", "reactjs", "react hooks"]
+  - name: Next.js
+    category: frontend
+    aliases: ["nextjs", "next js"]
+  - name: Vue.js
+    category: frontend
+    aliases: ["vue", "vuejs", "vue 3"]
+  - name: Angular
+    category: frontend
+    aliases: ["angularjs"]
+  - name: HTML
+    category: frontend
+    aliases: ["html5", "semantic html"]
+  - name: CSS
+    category: frontend
+    aliases: ["css3", "scss", "sass"]
+  - name: Tailwind CSS
+    category: frontend
+    aliases: ["tailwind", "tailwindcss"]
+  - name: Redux
+    category: frontend
+    aliases: ["redux toolkit"]
+  - name: Accessibility
+    category: frontend
+    aliases: ["a11y", "wcag", "screen reader support"]
+  - name: Responsive Design
+    category: frontend
+    aliases: ["mobile-first design", "responsive layouts"]
+  - name: Streamlit
+    category: frontend
+    aliases: ["streamlit apps"]
+  - name: Data Visualization
+    category: frontend
+    aliases: ["d3.js", "d3", "chart.js", "data visualisation"]
+
+  # ---------------- Testing ----------------
+  - name: Unit Testing
+    category: testing
+    aliases: ["unit tests", "unit test coverage"]
+  - name: Integration Testing
+    category: testing
+    aliases: ["integration tests", "end-to-end tests", "e2e testing"]
+  - name: pytest
+    category: testing
+    case_sensitive: true
+    aliases: ["py.test"]
+  - name: Jest
+    category: testing
+    case_sensitive: true
+    aliases: []
+  - name: Selenium
+    category: testing
+    aliases: ["selenium webdriver"]
+  - name: Playwright
+    category: testing
+    aliases: ["playwright tests"]
+  - name: Cypress
+    category: testing
+    aliases: []
+  - name: Test-Driven Development
+    category: testing
+    aliases: ["tdd", "test driven development"]
+  - name: Load Testing
+    category: testing
+    aliases: ["performance testing", "stress testing", "locust", "k6"]
+  - name: Test Automation
+    category: testing
+    aliases: ["automated testing", "test harness"]
+
+  # ---------------- Data analytics & visualization ----------------
+  - name: Data Analysis
+    category: data_analytics
+    aliases: ["exploratory data analysis", "eda", "data analytics"]
+  - name: Pandas
+    category: data_analytics
+    aliases: ["python pandas"]
+  - name: NumPy
+    category: data_analytics
+    aliases: ["numpy arrays"]
+  - name: Microsoft Excel
+    category: data_analytics
+    aliases: ["excel", "advanced excel", "spreadsheets"]
+  - name: Tableau
+    category: data_analytics
+    aliases: ["tableau desktop"]
+  - name: Power BI
+    category: data_analytics
+    aliases: ["powerbi", "power bi dashboards"]
+  - name: Looker
+    category: data_analytics
+    aliases: ["looker studio", "lookml"]
+  - name: Matplotlib
+    category: data_analytics
+    aliases: ["seaborn"]
+  - name: Plotly
+    category: data_analytics
+    aliases: ["plotly dash"]
+  - name: A/B Testing
+    category: data_analytics
+    aliases: ["a b testing", "ab testing", "experimentation"]
+  - name: Statistics
+    category: data_analytics
+    aliases: ["statistical analysis", "statistical inference", "hypothesis testing"]
+  - name: Regression Analysis
+    category: data_analytics
+    aliases: ["linear regression", "logistic regression"]
+  - name: Business Intelligence
+    category: data_analytics
+    aliases: ["bi reporting", "bi dashboards"]
+  - name: Metrics Design
+    category: data_analytics
+    aliases: ["kpi design", "metric definition", "north star metrics"]
+
+  # ---------------- MLOps ----------------
+  - name: MLOps
+    category: mlops
+    aliases: ["ml ops", "machine learning operations"]
+  - name: MLflow
+    category: mlops
+    aliases: ["ml flow"]
+  - name: Weights & Biases
+    category: mlops
+    aliases: ["wandb", "weights and biases"]
+  - name: Model Deployment
+    category: mlops
+    aliases: ["model serving", "model inference", "production ml"]
+  - name: Model Monitoring
+    category: mlops
+    aliases: ["model observability", "drift detection", "data drift"]
+  - name: Experiment Tracking
+    category: mlops
+    aliases: ["experiment management"]
+  - name: Optuna
+    category: mlops
+    aliases: []
+  - name: Ray
+    category: mlops
+    aliases: ["ray tune", "ray serve"]
+  - name: Kubeflow
+    category: mlops
+    aliases: ["kubeflow pipelines"]
+  - name: ONNX
+    category: mlops
+    aliases: ["onnx runtime"]
+  - name: Data Versioning
+    category: mlops
+    aliases: ["dvc", "dataset versioning"]
+
+  # ---------------- Professional ----------------
+  - name: Communication
+    category: professional
+    aliases: ["written communication", "verbal communication", "communication skills"]
+  - name: Stakeholder Management
+    category: professional
+    aliases: ["stakeholder engagement", "stakeholder communication"]
+  - name: Project Management
+    category: professional
+    aliases: ["project planning", "program management"]
+  - name: Agile
+    category: professional
+    aliases: ["agile methodologies", "agile delivery"]
+  - name: Scrum
+    category: professional
+    aliases: ["scrum master", "sprint planning"]
+  - name: Leadership
+    category: professional
+    aliases: ["team leadership", "people leadership"]
+  - name: Mentoring
+    category: professional
+    aliases: ["mentorship", "coaching engineers"]
+  - name: Collaboration
+    category: professional
+    aliases: ["cross-functional collaboration", "teamwork", "cross functional collaboration"]
+  - name: Problem Solving
+    category: professional
+    aliases: ["analytical thinking", "critical thinking"]
+  - name: Technical Writing
+    category: professional
+    aliases: ["documentation", "technical documentation"]
+  - name: Presentation Skills
+    category: professional
+    aliases: ["public speaking", "executive presentations"]
+  - name: Product Management
+    category: professional
+    aliases: ["product strategy", "product discovery"]
+
+  # ---------------- Domain ----------------
+  - name: Fraud Detection
+    category: domain
+    aliases: ["fraud analytics", "anomaly detection"]
+  - name: Healthcare Analytics
+    category: domain
+    aliases: ["clinical data", "healthcare data"]
+  - name: Financial Services
+    category: domain
+    aliases: ["fintech", "banking domain"]
+  - name: E-commerce
+    category: domain
+    aliases: ["ecommerce", "online retail"]
+  - name: Supply Chain
+    category: domain
+    aliases: ["logistics analytics", "supply chain analytics"]
+  - name: Cybersecurity
+    category: domain
+    aliases: ["security engineering", "threat detection"]
+  - name: Credit Risk
+    category: domain
+    aliases: ["risk modeling", "risk modelling"]
+  - name: Marketing Analytics
+    category: domain
+    aliases: ["campaign analytics", "growth analytics"]
+
+# Partial credit for transferable but distinct technologies.
+# Deliberately small: the list only contains sibling tools that practitioners
+# routinely substitute for one another. Anything not listed gets zero credit.
+related:
+  PyTorch:
+    TensorFlow: 0.5
+  TensorFlow:
+    PyTorch: 0.5
+  PostgreSQL:
+    MySQL: 0.4
+    Microsoft SQL Server: 0.4
+  MySQL:
+    PostgreSQL: 0.4
+  Microsoft SQL Server:
+    PostgreSQL: 0.4
+  AWS:
+    Microsoft Azure: 0.35
+    Google Cloud Platform: 0.35
+  Microsoft Azure:
+    AWS: 0.35
+    Google Cloud Platform: 0.35
+  Google Cloud Platform:
+    AWS: 0.35
+    Microsoft Azure: 0.35
+  JavaScript:
+    TypeScript: 0.5
+  TypeScript:
+    JavaScript: 0.5
+  React:
+    Vue.js: 0.4
+  Vue.js:
+    React: 0.4
+  Flask:
+    FastAPI: 0.4
+    Django: 0.35
+  FastAPI:
+    Flask: 0.4
+  Django:
+    Flask: 0.35
+  Apache Spark:
+    PySpark: 0.6
+  PySpark:
+    Apache Spark: 0.6
+  Docker:
+    Kubernetes: 0.25
+  Kubernetes:
+    Docker: 0.25
+  MLflow:
+    Weights & Biases: 0.4
+  Weights & Biases:
+    MLflow: 0.4
+  ChromaDB:
+    FAISS: 0.3
+  FAISS:
+    ChromaDB: 0.3
+    Pinecone: 0.3
+  Pinecone:
+    FAISS: 0.3
+  Matplotlib:
+    Plotly: 0.4
+  Plotly:
+    Matplotlib: 0.4
+  Tableau:
+    Power BI: 0.4
+  Power BI:
+    Tableau: 0.4
