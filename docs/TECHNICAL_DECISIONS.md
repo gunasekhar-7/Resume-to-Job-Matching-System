@@ -169,3 +169,95 @@ UI and in `docs/MATCHING_METHODOLOGY.md`.
 
 **Consequences.** Slightly more explanation for users, but no false precision. Fairness review
 focuses on score invariance rather than "fairness through unawareness" claims.
+
+---
+
+## ADR-013 - Exact FAISS search with an explicit job-ID map
+
+**Context.** Phase 2 must provide vector retrieval, stable IDs, persistence and duplicate
+protection without introducing approximation error or making vector positions into identifiers.
+
+**Decision.** Use `IndexFlatIP` inside `IndexIDMap2` with L2-normalised vectors. Maintain and
+persist an explicit integer-ID -> job-ID map, plus content hashes and a version derived from the
+model, index type, sorted job IDs and hashes. Reject duplicate IDs/hashes and mismatched versions.
+A NumPy exact backend is allowed only when FAISS is unavailable and is labelled as such.
+
+**Consequences.** Exact and reproducible at the 23-job scale; no recall loss from ANN. At much
+larger scale, exact search and full-corpus filtered scans need a measured ANN/pre-filtering
+decision. The index is disposable and rebuildable from job records.
+
+---
+
+## ADR-014 - `all-MiniLM-L6-v2` remains the default after validation benchmark
+
+**Context.** Both `all-MiniLM-L6-v2` and `bge-small-en-v1.5` were available locally and needed a
+measured comparison on quality, latency and footprint.
+
+**Decision.** Keep MiniLM as the default. On the validation split it scored NDCG@10 0.9834 vs
+BGE 0.9929, but it encoded 1.8x faster and is smaller. BGE stays selectable through configuration
+and `scripts/build_index.py --model`.
+
+**Consequences.** The default favours CPU latency. The quality difference is small and measured
+on only 30 judged pairs, so it is not treated as a general advantage. TF-IDF slightly exceeded
+both on this split; Phase 3 must test semantic value on held-out data rather than assume it.
+
+---
+
+## ADR-015 - Hybrid weights stay experimental until Phase 3
+
+**Context.** The five-component weights must be documented but cannot be presented as validated
+before the evaluation framework exists.
+
+**Decision.** Ship `0.30 semantic / 0.15 section / 0.33 required / 0.07 preferred / 0.15
+experience` as experimental defaults. Enforce non-negative weights summing to 1.0. Select final
+weights on validation in Phase 3, freeze them, and run the held-out test once.
+
+**Consequences.** Rankings are transparent and reproducible now. Any change to weights changes
+the config version; test results cannot be used for tuning.
+
+---
+
+## ADR-016 - Cross-encoder reranking is optional and off by default
+
+**Context.** A reranker is commonly assumed to improve ranking, but that must be measured on this
+domain and latency budget.
+
+**Decision.** Implement `cross-encoder/ms-marco-MiniLM-L-6-v2` as an opt-in component. On the
+validation split it reduced NDCG@10 from 1.0000 to 0.9416 and added ~461 ms per 23-pair rerank
+(warm), so `matching.reranker.enabled` remains `false`. A lexical fallback is available but is
+always labelled `degraded=True`.
+
+**Consequences.** The default path is faster and measured-better on validation. The negative
+result is documented rather than hidden. Only one reranker model and a small synthetic set were
+tested; this is not a general claim that reranking never helps.
+
+---
+
+## ADR-017 - Section-aware relevance excludes header and education
+
+**Context.** Whole-document similarity can let names, contact details or institutional prestige
+influence the score even when those fields are not competence signals.
+
+**Decision.** Build the resume query from summary, skills, experience and projects. For section
+relevance, use summary, skills, experience, projects and certifications; exclude header and
+education. Education remains visible to users but is not scored. Location and work arrangement
+are user filters only.
+
+**Consequences.** Less proxy leakage from identity and prestige. Section relevance is coarser than
+sentence-level evidence; Phase 3 adds traceable sentence evidence. The fallback query for a
+document with no detected sections uses full text and must be re-checked in the privacy review.
+
+---
+
+## ADR-018 - Neutral values for absent requirement information
+
+**Context.** A posting with no listed required skills or no experience range should not award a
+free perfect score, and a resume with undated experience should not be treated as zero years.
+
+**Decision.** Use neutral coverage 0.50 for absent required/preferred sets, 0.60 for an absent
+experience requirement, and 0.50 (insufficient information) for undated experience. Report the
+reason in the response notes. Missing skills are "not evidenced in this document", never proof
+that the candidate lacks them.
+
+**Consequences.** Scores are conservative for underspecified postings and resumes. The values are
+configuration, not empirical estimates, and are revisited with the evaluation framework.

@@ -19,6 +19,12 @@ file is the maintained index and records cross-cutting decisions that affect eve
 | ADR-010 | JSONL in Phase 1, SQL in Phase 4 | Accepted | same |
 | ADR-011 | CPU-first embeddings | Accepted | same |
 | ADR-012 | Scores are relevance, not hiring probability | Accepted | same |
+| ADR-013 | Exact FAISS + explicit job-ID map | Accepted | `docs/TECHNICAL_DECISIONS.md#adr-013` |
+| ADR-014 | MiniLM default; BGE selectable after benchmark | Accepted | same |
+| ADR-015 | Hybrid weights are experimental until validation tuning | Accepted | same |
+| ADR-016 | Cross-encoder reranker off by default | Accepted | same |
+| ADR-017 | Section-aware semantic scoring excludes header/education | Accepted | same |
+| ADR-018 | Neutral values for missing requirement information | Accepted | same |
 
 ## Cross-cutting rules
 

@@ -51,12 +51,12 @@ No automatic rejection.
 | FR-07 | Separate required from preferred skills and preserve evidence | 1 | Done |
 | FR-08 | Maintain a manually authored relevance-annotation set with documented guidelines | 1 | Done (140 pairs) |
 | FR-09 | Detect and redact structured PII; exclude private documents from Git | 1 | Done |
-| FR-10 | Provide a TF-IDF retrieval baseline and independent skill-overlap scoring | 2 | Pending |
-| FR-11 | Generate semantic embeddings for resumes, sections and jobs, with persisted metadata | 2 | Pending |
-| FR-12 | Provide FAISS retrieval with a stable job-ID mapping and index versioning | 2 | Pending |
-| FR-13 | Score matches with a configurable, normalised hybrid score | 2 | Pending |
-| FR-14 | Compute experience/seniority alignment independently | 2 | Pending |
-| FR-15 | Support optional cross-encoder reranking | 2 | Pending |
+| FR-10 | Provide a TF-IDF retrieval baseline and independent skill-overlap scoring | 2 | Done |
+| FR-11 | Generate semantic embeddings for resumes, sections and jobs, with persisted metadata | 2 | Done |
+| FR-12 | Provide FAISS retrieval with a stable job-ID mapping and index versioning | 2 | Done |
+| FR-13 | Score matches with a configurable, normalised hybrid score | 2 | Done (experimental weights) |
+| FR-14 | Compute experience/seniority alignment independently | 2 | Done |
+| FR-15 | Support optional cross-encoder reranking | 2 | Done (disabled by default; negative validation result) |
 | FR-16 | Explain every recommendation with traceable evidence and a score breakdown | 3 | Pending |
 | FR-17 | Report skill gaps with explicit denominators; never claim a candidate lacks a skill | 3 | Pending |
 | FR-18 | Evaluate ranking quality on held-out labelled pairs with standard IR metrics | 3 | Pending |

@@ -24,7 +24,7 @@ from talentlens.errors import TalentLensError
 from talentlens.ingestion.loader import load_path
 from talentlens.log import get_logger
 from talentlens.parsing.resume_parser import parse_upload
-from talentlens.schemas import ResumeDocument
+from talentlens.schemas import JobPosting, ResumeDocument
 from talentlens.utils.text import content_sha256
 
 logger = get_logger("ingestion.dataset")
@@ -238,6 +238,24 @@ def read_corpus_jsonl(path: str | Path) -> list[ResumeDocument]:
             if line.strip():
                 documents.append(ResumeDocument.model_validate_json(line))
     return documents
+
+
+def write_jobs_jsonl(jobs: list[JobPosting], path: str | Path) -> Path:
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8") as handle:
+        for job in jobs:
+            handle.write(job.model_dump_json() + "\n")
+    return output
+
+
+def read_jobs_jsonl(path: str | Path) -> list[JobPosting]:
+    jobs: list[JobPosting] = []
+    with Path(path).open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if line.strip():
+                jobs.append(JobPosting.model_validate_json(line))
+    return jobs
 
 
 def quality_report_markdown(stats: dict[str, Any], corpus_name: str) -> str:

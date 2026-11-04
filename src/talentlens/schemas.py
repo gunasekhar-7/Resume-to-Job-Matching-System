@@ -309,6 +309,8 @@ class ScoreBreakdown(_Model):
     required_coverage: float = Field(ge=0, le=1)
     preferred_coverage: float = Field(ge=0, le=1)
     experience_alignment: float = Field(ge=0, le=1)
+    #: TF-IDF cosine, retained as a diagnostic even when it is not part of the total.
+    tfidf: float | None = Field(default=None, ge=0, le=1)
     total: float = Field(ge=0, le=1)
     weights: dict[str, float] = Field(default_factory=dict)
     contributions: list[ScoreContribution] = Field(default_factory=list)
@@ -379,6 +381,8 @@ class JobMatch(_Model):
     score_breakdown: ScoreBreakdown
     explanation: MatchExplanation
     retrieval_source: Literal["tfidf", "semantic", "hybrid", "reranked", "skill"] = "hybrid"
+    #: Cross-encoder relevance when reranking is enabled (None otherwise).
+    rerank_score: float | None = Field(default=None, ge=0, le=1)
 
 
 class JobSkillGap(_Model):

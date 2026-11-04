@@ -84,6 +84,16 @@ class IndexLoadError(TalentLensError):
     http_status = 503
 
 
+class DuplicateJobError(TalentLensError):
+    code = "duplicate_job"
+    http_status = 409
+
+
+class RerankerUnavailableError(TalentLensError):
+    code = "reranker_unavailable"
+    http_status = 503
+
+
 class NotFoundError(TalentLensError):
     code = "not_found"
     http_status = 404

@@ -100,7 +100,7 @@ They must not import `embeddings`, `retrieval`, `matching`, or `storage`.
 - Raw uploads are not persisted. Parsed text retention is configurable (default 24h) and
   user deletion removes resume rows, sections, skills and match rows via cascade.
 
-## 7. Retrieval and scoring (Phase 2 target)
+## 7. Retrieval and scoring (Phase 2 implemented)
 
 ```text
 resume ─┬─► whole-document embedding ─┐
@@ -116,7 +116,9 @@ jobs ───┴─► job embeddings ───────────┘     
 ```
 
 All components are normalised to [0, 1] before weighting; weights are configuration, and the
-selected weights are frozen before the held-out test evaluation.
+selected weights are frozen before the held-out test evaluation. The implemented default is exact
+FAISS `IndexFlatIP` + `IndexIDMap2` with `all-MiniLM-L6-v2` (384-d) and a persisted explicit
+job-ID map. TF-IDF is fitted independently. See [`MATCHING_METHODOLOGY.md`](MATCHING_METHODOLOGY.md).
 
 ## 8. Error handling and degradation
 

@@ -1,0 +1,112 @@
+{
+  "generated_by": "scripts/benchmark_reranker.py",
+  "split": "validation (r08-r10); held-out test resumes r11-r14 excluded",
+  "reranker_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+  "reranker_load_ms": 4486.6,
+  "degraded": false,
+  "degradation_reason": null,
+  "latency_ms": {
+    "hybrid_total_mean": 76.1,
+    "rerank_mean_including_load": 1986.2,
+    "rerank_warm_mean": 461.0,
+    "rerank_per_resume": [
+      5036.64,
+      461.25,
+      460.83
+    ],
+    "rerank_candidates_per_resume": 23,
+    "rerank_warm_candidates_per_s": 49.9
+  },
+  "hybrid": {
+    "ndcg@10": 1.0,
+    "mrr": 1.0,
+    "per_resume": [
+      {
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "judged": 10
+      },
+      {
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "judged": 10
+      },
+      {
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "judged": 10
+      }
+    ]
+  },
+  "hybrid_plus_rerank": {
+    "ndcg@10": 0.9416,
+    "mrr": 1.0,
+    "per_resume": [
+      {
+        "ndcg@10": 0.9752,
+        "mrr": 1.0,
+        "judged": 10
+      },
+      {
+        "ndcg@10": 0.8983,
+        "mrr": 1.0,
+        "judged": 10
+      },
+      {
+        "ndcg@10": 0.9513,
+        "mrr": 1.0,
+        "judged": 10
+      }
+    ]
+  },
+  "top5_examples": {
+    "r08": {
+      "hybrid_top5": [
+        "j08",
+        "j23",
+        "j01",
+        "j16",
+        "j18"
+      ],
+      "reranked_top5": [
+        "j23",
+        "j08",
+        "j01",
+        "j15",
+        "j06"
+      ]
+    },
+    "r09": {
+      "hybrid_top5": [
+        "j09",
+        "j02",
+        "j16",
+        "j13",
+        "j18"
+      ],
+      "reranked_top5": [
+        "j09",
+        "j20",
+        "j14",
+        "j19",
+        "j06"
+      ]
+    },
+    "r10": {
+      "hybrid_top5": [
+        "j10",
+        "j04",
+        "j03",
+        "j07",
+        "j17"
+      ],
+      "reranked_top5": [
+        "j10",
+        "j14",
+        "j04",
+        "j16",
+        "j08"
+      ]
+    }
+  }
+}

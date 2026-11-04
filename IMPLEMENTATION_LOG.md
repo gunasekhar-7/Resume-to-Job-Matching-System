@@ -71,6 +71,67 @@ Chronological record of what was built, what was measured, and what failed first
 
 ---
 
-## 2026-11-04 - Phase 2 (starting)
+## 2026-11-04 - Phase 2
 
-- Next: embedding benchmark, FAISS, hybrid scoring, tests, and completion report.
+### Review and design
+- Read the Phase 1 completion report, schemas, processed JSONL and annotation split.
+- Reused parsed `ResumeDocument`, `JobPosting`, the 214-skill taxonomy and job requirement data;
+  no Phase 1 component was rebuilt.
+- Fixed the interface contract first: added `ScoreBreakdown.tfidf` for the diagnostic baseline and
+  `JobMatch.rerank_score` so a reranked order can be audited against the hybrid score.
+
+### Embeddings
+- Implemented a Sentence-Transformer embedder (CPU, lazy load, 384-d), an LSA fallback, a shared
+  `Embedder` interface and `get_embedder()`.
+- Added a hash-keyed npz embedding cache; only SHA-256 keys are stored, never raw text.
+- Built `scripts/benchmark_embeddings.py` for validation-only comparison (r08-r10).
+- Result: MiniLM NDCG@10 0.9834 / 12.26 ms per doc; BGE 0.9929 / 21.86 ms per doc; TF-IDF
+  reference 0.9947. Kept MiniLM as default for CPU cost and because the BGE difference is not
+  meaningful on 30 judged pairs. Recorded that semantic retrieval is not yet shown to beat TF-IDF.
+
+### Retrieval
+- Implemented TF-IDF word 1-2 grams with persistence and versioning (1,305 features).
+- Implemented exact FAISS `IndexFlatIP` + `IndexIDMap2`, an explicit ID map, content/version
+  hashes, duplicate rejection, incremental add, load checks and a labelled NumPy fallback.
+- Implemented semantic retrieval and candidate-union logic.
+- Added `scripts/build_index.py`; built the real 23-job index
+  `v1-sentence-transformers-all-minilm-l6-v2-23-520c99df`.
+
+### Matching
+- Implemented exact/related skill coverage with required/preferred separation and evidence
+  selection; no double counting; neutral coverage for underspecified postings.
+- Implemented experience parsing, merged overlapping roles, internship weighting, fresher and
+  overqualification handling, and an explicit insufficient-information state. Education dates are
+  never used as tenure.
+- Implemented the weighted scorer with clamped components, contribution records and strict weight
+  validation.
+- Implemented the unified pipeline with `hybrid`/`tfidf`/`semantic`, filters, timings, warnings,
+  persistence/reload and whole-corpus `rank_ids()` for Phase 3.
+- Implemented optional cross-encoder reranking with a labelled lexical fallback.
+
+### Testing and verification
+- Added 62 matching tests (122 total) covering embeddings/cache, FAISS, TF-IDF, skill matching,
+  experience alignment, scoring, strategies, filters, reranking and reproducibility.
+- `python -m pytest tests -q` -> 122 passed.
+- `python -m ruff check src tests scripts` -> clean.
+- Real MiniLM + FAISS run on r01 and r09 produced valid top-5 rankings and breakdowns.
+
+### Bugs found and fixed
+| Issue | Resolution |
+| --- | --- |
+| Embedding cache batch positions were double-counted (`len(keys) + len(new_keys)` after append), causing `IndexError` on the second real-model call | Assign `len(self._keys)` before appending; added a 3-text batch cache regression test; deleted the disposable cache |
+| Zero-minimum junior roles ignored an upper experience bound, giving a senior candidate full experience credit | Check `max_years + 2` first and return `0.75` with a seniority note; added a test |
+| Work-arrangement filter compared a mixed-case job value against lower-cased filter values | Lower-case both sides; added a case-insensitive filter test |
+| Filters were applied after a top-N cut, so they could hide allowed jobs | Retrieve the whole corpus when a filter is active; documented the scale trade-off |
+| Cross-encoder reranking reduced validation NDCG (1.0000 -> 0.9416) | Kept it optional and disabled by default; recorded the negative result and latency |
+
+### Phase 2 artifacts
+- `docs/MATCHING_METHODOLOGY.md`
+- `reports/PHASE_2_COMPLETION_REPORT.md`
+- `reports/phase2_embedding_benchmark.json`
+- `reports/phase2_reranker_benchmark.json`
+- `artifacts/index/sentence-transformers-all-minilm-l6-v2/` (gitignored, rebuildable)
+
+### Next
+Phase 3: sentence-level evidence, skill-gap reports, ranking evaluator, validation-tuned and
+frozen weights, held-out comparison, error analysis, counterfactual fairness and privacy review.

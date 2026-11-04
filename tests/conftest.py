@@ -13,8 +13,10 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+TESTS = ROOT / "tests"
+for entry in (str(SRC), str(TESTS)):
+    if entry not in sys.path:
+        sys.path.insert(0, entry)
 
 from talentlens.config import get_config  # noqa: E402
 from talentlens.parsing.resume_parser import parse_file  # noqa: E402

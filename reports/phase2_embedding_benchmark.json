@@ -1,0 +1,157 @@
+{
+  "generated_by": "scripts/benchmark_embeddings.py",
+  "split": "validation (r08-r10); held-out test resumes r11-r14 excluded",
+  "judged_jobs_per_resume": 10,
+  "jobs": 23,
+  "config_version": "2026-11-04.1",
+  "results": [
+    {
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "backend": "sentence_transformers",
+      "dimension": 384,
+      "parameters": 22713216,
+      "fp32_weights_mb": 86.6,
+      "load_ms": 5397.8,
+      "process_first_use_ms": 19027.6,
+      "job_encode_ms": 282.0,
+      "job_encode_per_doc_ms": 12.26,
+      "job_throughput_docs_per_s": 81.6,
+      "resume_encode_ms": 63.0,
+      "peak_rss_delta_mb": 618.0,
+      "validation_resumes": [
+        "r08",
+        "r09",
+        "r10"
+      ],
+      "per_resume": {
+        "r08": {
+          "ndcg@10": 0.9685,
+          "ndcg@5": 0.8904,
+          "precision@5": 0.2,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        },
+        "r09": {
+          "ndcg@10": 0.9817,
+          "ndcg@5": 0.9808,
+          "precision@5": 0.6,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        },
+        "r10": {
+          "ndcg@10": 1.0,
+          "ndcg@5": 1.0,
+          "precision@5": 0.2,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        }
+      },
+      "ndcg@10": 0.9834,
+      "ndcg@5": 0.9571,
+      "precision@5": 0.3333,
+      "recall@5": 1.0,
+      "mrr": 1.0
+    },
+    {
+      "model": "BAAI/bge-small-en-v1.5",
+      "backend": "sentence_transformers",
+      "dimension": 384,
+      "parameters": 33360000,
+      "fp32_weights_mb": 127.3,
+      "load_ms": 4549.1,
+      "process_first_use_ms": 4549.3,
+      "job_encode_ms": 502.9,
+      "job_encode_per_doc_ms": 21.86,
+      "job_throughput_docs_per_s": 45.7,
+      "resume_encode_ms": 111.4,
+      "peak_rss_delta_mb": 141.8,
+      "validation_resumes": [
+        "r08",
+        "r09",
+        "r10"
+      ],
+      "per_resume": {
+        "r08": {
+          "ndcg@10": 1.0,
+          "ndcg@5": 1.0,
+          "precision@5": 0.2,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        },
+        "r09": {
+          "ndcg@10": 0.9787,
+          "ndcg@5": 0.9808,
+          "precision@5": 0.6,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        },
+        "r10": {
+          "ndcg@10": 1.0,
+          "ndcg@5": 1.0,
+          "precision@5": 0.2,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        }
+      },
+      "ndcg@10": 0.9929,
+      "ndcg@5": 0.9936,
+      "precision@5": 0.3333,
+      "recall@5": 1.0,
+      "mrr": 1.0
+    },
+    {
+      "model": "tfidf-word-1-2 (reference)",
+      "backend": "tfidf",
+      "dimension": null,
+      "parameters": null,
+      "fp32_weights_mb": null,
+      "load_ms": null,
+      "job_encode_ms": null,
+      "job_encode_per_doc_ms": null,
+      "job_throughput_docs_per_s": null,
+      "peak_rss_delta_mb": null,
+      "validation_resumes": [
+        "r08",
+        "r09",
+        "r10"
+      ],
+      "per_resume": {
+        "r08": {
+          "ndcg@10": 0.9904,
+          "ndcg@5": 0.9904,
+          "precision@5": 0.2,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        },
+        "r09": {
+          "ndcg@10": 1.0,
+          "ndcg@5": 1.0,
+          "precision@5": 0.6,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        },
+        "r10": {
+          "ndcg@10": 0.9938,
+          "ndcg@5": 0.9218,
+          "precision@5": 0.2,
+          "recall@5": 1.0,
+          "mrr": 1.0,
+          "judged": 10
+        }
+      },
+      "ndcg@10": 0.9947,
+      "ndcg@5": 0.9707,
+      "precision@5": 0.3333,
+      "recall@5": 1.0,
+      "mrr": 1.0
+    }
+  ]
+}

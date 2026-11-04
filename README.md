@@ -8,8 +8,9 @@ evidenced (kept separate from required vs preferred), the relevant resume senten
 experience alignment. It is a decision-support tool for candidates - **not** an automated hiring
 decision system, and the score is never a probability of being hired.
 
-> **Status:** Phase 1 (data engineering and document intelligence) is complete and verified.
-> Phases 2-4 are in progress. See [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
+> **Status:** Phases 1-2 (data engineering, parsing and the retrieval/matching engine) are complete
+> and verified. Phase 3 (explainability, evaluation, responsible AI) is next. See
+> [`PROJECT_STATUS.md`](PROJECT_STATUS.md) for measured results.
 
 ## What works today
 
@@ -25,6 +26,10 @@ decision system, and the score is never a probability of being hired.
 - Structured PII detection (email, phone, profile URLs) with values excluded from metadata.
 - A 140-pair manually labelled relevance set with documented guidelines and grouped splits.
 - Reproducible data-quality reports for both corpora.
+- TF-IDF, semantic and hybrid job retrieval over an exact FAISS index with stable job-ID mapping
+  and versioned artifacts.
+- Required/preferred skill coverage, evidence records and independent experience alignment.
+- Transparent score contributions and optional cross-encoder reranking (off by default).
 
 ## Quickstart
 
@@ -40,8 +45,15 @@ python scripts/ingest_resumes.py
 # 3. Import jobs -> data/processed/jobs.jsonl + reports/PHASE1_JOBS_QUALITY.md
 python scripts/ingest_jobs.py
 
-# 4. Tests
+# 4. Build the matching index (downloads/caches the embedding model on first run)
+python scripts/build_index.py
+
+# 5. Tests
 python -m pytest tests -q
+
+# Optional: validation-only model and reranker benchmarks
+python scripts/benchmark_embeddings.py
+python scripts/benchmark_reranker.py
 ```
 
 Python 3.10+ is supported; the verified environment uses 3.11.7.
@@ -69,9 +81,11 @@ reports/        phase completion and evaluation reports
 - [Dataset card](docs/DATASET_CARD.md)
 - [Resume parsing](docs/RESUME_PARSING.md)
 - [Skill extraction](docs/SKILL_EXTRACTION.md)
+- [Matching methodology](docs/MATCHING_METHODOLOGY.md)
 - [Annotation guidelines](docs/ANNOTATION_GUIDELINES.md)
 - [Known limitations](KNOWN_LIMITATIONS.md)
 - [Phase 1 completion report](reports/PHASE_1_COMPLETION_REPORT.md)
+- [Phase 2 completion report](reports/PHASE_2_COMPLETION_REPORT.md)
 
 ## Privacy
 
