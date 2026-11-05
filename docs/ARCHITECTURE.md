@@ -160,3 +160,30 @@ docker compose
 ```
 
 CPU-first. Model cache and FAISS index live on a volume so containers stay stateless.
+
+## 12. Phase 4 implementation (as built)
+
+```text
+Browser / Streamlit
+  -> FastAPI (api/main.py)
+       middleware: request ID, rate limit, Origin guard, security headers, CORS
+       service:  parsing -> storage -> matching pipeline -> storage
+       routes:   resumes, matches, skill gaps, jobs, health, ready, metrics
+  -> SQLAlchemy (src/talentlens/storage)
+       sessions -> resumes -> match_runs (cascade delete, retention deadline)
+  -> MatchingPipeline (Phase 2/3, no duplicated matching logic)
+```
+
+- `api/main.py` is an app factory with an injectable pipeline/storage for tests. It starts even
+  when the index is missing and exposes `degraded` readiness instead of silently ranking.
+- `api/service.py` owns parse/store/match orchestration. `api/middleware.py` owns transport
+  controls. There is no separate ranking implementation in the API or UI.
+- `Storage` stores only the parsed `ResumeDocument` JSON, never the uploaded binary. Sessions
+  store a SHA-256 hash of the cookie token. `match_runs` are replaced on each run and cascade
+  with the resume.
+- `GET /health` reports component status; `GET /ready` returns 503 when DB or pipeline is down;
+  `GET /metrics` exposes Prometheus text. `GET /api/v1/meta` exposes non-secret versions.
+- Streamlit is a normal API client. The API session cookie is kept in Streamlit's server-side
+  session state, not exposed as application data to the browser page.
+- Compose topology: `api` (bootstrap then Uvicorn), `frontend` (Streamlit), `db` (PostgreSQL 16),
+  with model/index and processed-data mounts. See [`DEPLOYMENT.md`](DEPLOYMENT.md).

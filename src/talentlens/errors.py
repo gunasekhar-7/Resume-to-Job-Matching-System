@@ -99,6 +99,16 @@ class NotFoundError(TalentLensError):
     http_status = 404
 
 
+class SessionRequiredError(TalentLensError):
+    code = "session_required"
+    http_status = 401
+
+
+class InvalidRequestError(TalentLensError):
+    code = "invalid_request"
+    http_status = 422
+
+
 class EvaluationError(TalentLensError):
     code = "evaluation_error"
 

@@ -203,7 +203,7 @@ both on this split; Phase 3 must test semantic value on held-out data rather tha
 
 ---
 
-## ADR-015 - Hybrid weights stay experimental until Phase 3
+## ADR-015 - Hybrid weights stay experimental until Phase 3 (superseded by ADR-021)
 
 **Context.** The five-component weights must be documented but cannot be presented as validated
 before the evaluation framework exists.
@@ -261,3 +261,91 @@ that the candidate lacks them.
 
 **Consequences.** Scores are conservative for underspecified postings and resumes. The values are
 configuration, not empirical estimates, and are revisited with the evaluation framework.
+
+---
+
+## ADR-019 - Sentence evidence is selected above an explicit similarity floor
+
+**Context.** A scored component can be explained from the formula, but a formula is not evidence
+that the resume contains the claimed experience. The product promises citations.
+
+**Decision.** Extract candidate sentences from scored sections, exclude header/education, embed
+them once per resume, and select up to three above a configurable cosine floor (default 0.30),
+preferring section diversity. If no sentence passes, return an empty list and an explicit note.
+The threshold is a presentation guard, not a claim of entailment.
+
+**Consequences.** Every displayed citation is real resume text with an optional offset. Some
+genuine matches may show no evidence when morphology or section detection is poor; that is
+preferable to fabricated support and is visible to the user.
+
+---
+
+## ADR-020 - Unjudged jobs are excluded from ranking metrics
+
+**Context.** The annotation set covers 10 selected jobs per resume, not all 23. Treating an
+unannotated job as irrelevant would make metrics depend on annotation coverage.
+
+**Decision.** Remove unjudged jobs before P@K, R@K, NDCG and MRR. Record the protocol alongside
+every result. Use grouped, resume-level dev/validation/test splits and validate that no resume
+leaks across splits.
+
+**Consequences.** Metrics compare rankings only over judged pairs. The P@K denominator is
+`min(K, judged)`; recall is relative to judged relevant jobs. This is a defensible small-set
+protocol, but it cannot estimate recall over the full corpus.
+
+---
+
+## ADR-021 - Weights were frozen despite a validation tie
+
+**Context.** All six candidate weight sets reached NDCG@10 1.0000 on the 30-pair validation
+split. Picking the maximum would be arbitrary and would overfit a near-ceiling metric.
+
+**Decision.** Adopt a candidate only if NDCG@10 improves by more than 0.005. None did, so the
+documented defaults (0.30/0.15/0.33/0.07/0.15) were frozen. The test split was then run once.
+
+**Consequences.** The weights are not empirically optimal; they are a transparent, untuned
+default. Future changes require a new frozen configuration and a new documented test run.
+
+---
+
+## ADR-022 - Session-scoped access instead of v1 authentication
+
+**Context.** The product brief requires resume privacy and deletion but does not require user
+accounts. Adding full authentication would expand scope and create credential-handling risk.
+
+**Decision.** Issue a random, HttpOnly, SameSite=Lax cookie on upload. Store only its SHA-256
+hash. Scope every resume query by that session. Reject foreign-origin state changes. Document
+that this is not multi-user authentication and must be replaced before a multi-tenant launch.
+
+**Consequences.** Cross-session access is prevented in tests without inventing an account
+system. A stolen cookie is a bearer token; TLS, retention and a real auth layer are production
+requirements. Streamlit keeps the cookie server-side in its own session state.
+
+---
+
+## ADR-023 - Parsed JSON in SQLAlchemy; raw uploads never persisted
+
+**Context.** Phase 1 used JSONL; Phase 4 needs deletion, session scoping and retention without
+rewriting the validated schemas.
+
+**Decision.** Store the validated `ResumeDocument` JSON in a `resumes` row, tied to a session and
+an expiry, with cascading `match_runs`. Use SQLite locally and PostgreSQL in Compose. Never store
+the uploaded binary. Purge expired sessions/resumes at startup and on demand.
+
+**Consequences.** Schemas remain authoritative and deletion is a single cascade. There is no
+built-in scheduler, so production needs a purge job. JSON documents are less queryable than
+normalised skill rows; that trade-off is acceptable for the v1 retrieval path.
+
+---
+
+## ADR-024 - Docker Compose is configuration-only until actually executed
+
+**Context.** The brief requests Docker/Compose, but the development host did not have Docker
+available.
+
+**Decision.** Ship an explicit Dockerfile, Compose stack, bootstrap script and deployment guide,
+but do not claim the stack was verified. Report the limitation in status, Phase 4 report and
+known limitations. Keep local path verification separate.
+
+**Consequences.** Reviewers can run the stack, but container startup, PostgreSQL persistence and
+health checks remain unverified here. A future run must record the actual command and output.

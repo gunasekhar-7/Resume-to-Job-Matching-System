@@ -205,8 +205,9 @@ overqualification (`0.75`) and has a dedicated test.
 - 30 judged validation pairs and near-ceiling scores; differences are provisional.
 - TF-IDF is competitive/superior on this split, so semantic benefit is not yet demonstrated.
 - Cross-encoder reranking is negative on validation; only one reranker model was tested.
-- Section relevance is section-level, not sentence-level; `section_evidence` remains empty until
-  Phase 3.
+- Section relevance is section-level, not sentence-level; `section_evidence` was empty at the
+  end of Phase 2. **Resolved in Phase 3:** sentence evidence and skill-gap reports are now
+  implemented; see `reports/PHASE_3_COMPLETION_REPORT.md`.
 - Hybrid weights are experimental and have not been tuned.
 - Experience parsing handles common formats, not every real-world date convention.
 - With a filter active the pipeline scans the full corpus to guarantee completeness; this needs a

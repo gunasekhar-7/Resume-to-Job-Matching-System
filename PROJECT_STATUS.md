@@ -1,7 +1,8 @@
 # TalentLens - Project Status
 
-**Last updated:** 2026-11-04
-**Current phase:** Phase 2 complete; Phase 3 not started.
+**Last updated:** 2026-11-05
+**Current phase:** All four phases implemented; local verification complete. Docker Compose
+is provided but not run in this environment.
 
 ## Phase overview
 
@@ -9,8 +10,8 @@
 | --- | --- | --- |
 | 1 | Foundation, data engineering, document intelligence | **Complete** - verified |
 | 2 | Semantic retrieval and matching engine | **Complete** - verified |
-| 3 | Explainability, evaluation, responsible AI | Not started |
-| 4 | Product engineering, deployment, portfolio readiness | Not started |
+| 3 | Explainability, evaluation, responsible AI | **Complete** - verified |
+| 4 | API, UI, storage, deployment, observability | **Complete - local scope**; Compose syntax validated, stack not started |
 
 ## Verified environment
 
@@ -24,43 +25,56 @@
 | NumPy / SciPy / pandas | 2.4.6 / 1.17.1 / 3.0.6 |
 | PyMuPDF | 2.0 |
 | python-docx | 1.2.0 |
-| spaCy | 3.8.18 (blank `en` pipeline; no model download) |
+| spaCy | 3.8.18 (blank `en` pipeline) |
 | sentence-transformers / torch | 6.1.0 / 2.14.1 |
-| faiss-cpu | 1.15.1 (installed during Phase 1 setup) |
+| faiss-cpu | 1.15.1 |
 | Streamlit | 1.65.0 |
 | pytest | 9.1.1 |
 
-## Phase 1 verified results
+## Current verification
 
-| Metric | Value | Source |
+| Check | Result | Command |
 | --- | --- | --- |
-| Resume files parsed | 26 / 26 | `python scripts/ingest_resumes.py` |
-| Unique resumes after dedupe | 14 (12 format-variant duplicates) | same |
-| Parse status | 14 success, 0 partial, 0 failed | same |
-| Average extraction quality | 0.961 | same |
-| Section coverage | summary/skills/experience/education 100%; projects 100%; certifications 42.9%; publications 21.4% | same |
-| Canonical skills per resume | 16.0 average | same |
-| Job postings imported | 23 (JSON), 23 (CSV), 0 rejected | `python scripts/ingest_jobs.py` |
-| Required / preferred skills | 108 / 94, disjoint per job | same |
-| Repeat-import duplicates prevented | 23 | same |
-| Skill taxonomy | 214 canonical skills, 15 categories | `SkillTaxonomy.load()` |
-| Annotated pairs | 140 (24 strong / 50 partial / 66 not relevant) across 14 resumes and 22 jobs | `data/annotations/relevance_labels.jsonl` |
-| Tests (end of Phase 1) | 60 passed | `python -m pytest tests -q` |
-| Lint | clean (`ruff check`) | `python -m ruff check src tests scripts` |
+| Full test suite | **146 passed** | `python -m pytest tests -q` |
+| Lint | clean | `python -m ruff check src api frontend tests scripts` |
+| Python compile (API/UI) | clean | `python -m py_compile ...` / CI compileall |
+| Fairness | **70 / 70 passed** | `python scripts/check_fairness.py` |
+| Held-out evaluation | complete, 40 judged pairs | `python scripts/evaluate_ranking.py --split test ...` |
+| Real API/UI smoke | checked with the real MiniLM index; see Phase 4 report | local Uvicorn + Streamlit |
 
-## Phase 2 verified results
+## Phase 2/3 measured results
 
-| Metric | Value | Source |
-| --- | --- | --- |
-| Jobs indexed | 23 (384-d, FAISS `flat_ip`) | `python scripts/build_index.py` |
-| Index version | `v1-sentence-transformers-all-minilm-l6-v2-23-520c99df` | same |
-| TF-IDF vocabulary | 1,305 features (word 1-2 grams) | build log |
-| Embedding benchmark | MiniLM NDCG@10 0.9834; BGE 0.9929; TF-IDF 0.9947 (validation r08-r10, 30 judged pairs) | `scripts/benchmark_embeddings.py` |
-| Embedding latency | MiniLM 12.26 ms/doc; BGE 21.86 ms/doc (CPU) | same |
-| Reranker comparison | Hybrid NDCG@10 1.0000; hybrid+CE 0.9416 | `scripts/benchmark_reranker.py` |
-| Reranker latency | 461 ms per 23-pair rerank (warm); 4.5 s model load | same |
-| Tests | 122 passed | `python -m pytest tests -q` |
-| Lint | clean | `python -m ruff check src tests scripts` |
+| System | Validation NDCG@10 | Test NDCG@10 | Test NDCG@5 |
+| --- | --- | --- | --- |
+| TF-IDF | 0.994733 | 0.990624 | 0.980872 |
+| Semantic (MiniLM) | 0.983385 | 0.996218 | 0.985067 |
+| Hybrid (frozen) | 1.000000 | **0.998711** | **1.000000** |
+| Hybrid + cross-encoder | 0.941590 | 0.934082 | 0.852214 |
+
+- Index `v1-sentence-transformers-all-minilm-l6-v2-23-520c99df` (23 jobs, 384-d, FAISS).
+- Weights frozen after validation-only selection; the tested default was retained because
+  all candidates tied at 1.0000 and none cleared the +0.005 rule.
+- Cross-encoder reranking remained negative and is disabled.
+- Test set: r11-r14, 40 judged pairs. Synthetic corpus, one annotator, near-ceiling metrics.
+- Warm hybrid median total time: **69.69 ms** (4 resumes, real model, same process, evidence
+  included). This is a single-host measurement, not a capacity claim.
+
+## Phase 4 delivered
+
+- FastAPI app in `api/` with upload, parse, match, latest matches, skill gaps, jobs,
+  deletion, health, readiness, metrics and meta endpoints.
+- SQLAlchemy storage (`sessions`, `resumes`, `match_runs`) with SQLite local and PostgreSQL
+  Compose configuration. Only a SHA-256 session-token hash is stored.
+- Raw uploads are never persisted; parsed documents have a 24-hour default retention and
+  cascade deletion. Session-scoped access prevents cross-session reads in the tested flows.
+- Middleware: request IDs, structured errors, rate limiting, foreign-origin rejection,
+  security headers, no-store API responses and CORS allow-list.
+- Streamlit Candidate Mode: upload, parsed review, filters, ranked evidence, score chart,
+  skill-gap tabs, all-jobs browser and deletion.
+- Dockerfile, `docker-compose.yml` (API + UI + PostgreSQL), `.dockerignore`, idempotent
+  `scripts/bootstrap_runtime.py`, and GitHub Actions CI.
+- 8 API/storage integration tests and the full suite cover upload, matching, session
+  isolation, deletion, invalid files, foreign origin, health, metrics and retention purge.
 
 ## Deliberately broken fixtures - observed behaviour
 
@@ -71,39 +85,24 @@
 | `scanned.pdf` (image-only) | Parsed as `failed`, low-text warning |
 | `not_a_resume.exe` | Rejected, `unsupported_file_type` |
 
-## What works now
+## Known status boundaries
 
-- Upload validation (type, size, magic bytes, DOCX ZIP limits) with no temp files.
-- PDF parsing with column-aware reading order; DOCX parsing in body order; TXT support.
-- Cleaning, running header/footer removal, section detection with character offsets.
-- 214-skill taxonomy, alias normalisation, evidence-preserving extraction.
-- Job import from JSON/CSV/manual/text with required/preferred separation and inference warnings.
-- Processed JSONL corpora, corpus quality reports, and a manually annotated evaluation set.
-- Structured PII detection (emails, phones, URLs) with values never persisted in metadata.
-- TF-IDF baseline plus exact FAISS retrieval with an explicit job-ID map, versioning and
-  persistence; `hybrid`, `tfidf` and `semantic` strategies.
-- Required/preferred skill coverage with exact and taxonomy-related credit, plus missing-skill
-  evidence; independent experience alignment.
-- Configurable hybrid scoring with a full contribution breakdown; optional cross-encoder
-  reranking (disabled by default because it reduced validation NDCG).
-- User-controlled location/work-arrangement filters, kept outside the professional score.
+- No real resumes; all quality claims are scoped to the synthetic corpus.
+- Single annotator and no inter-annotator agreement.
+- Session-scoped access is not multi-user authentication.
+- Docker Compose and cloud deployment are not claimed as verified.
+- No production load test or distributed rate limiting.
+- Cross-encoder remains opt-in and negative on this corpus.
 
-## Next actions (Phase 3)
+## Next actions
 
-1. Add sentence-level section evidence and structured skill-gap reports.
-2. Implement the ranking evaluator (P@K, R@K, NDCG@10, MRR) with grouped splits and unjudged-job
-   exclusion.
-3. Select weights on validation, freeze them, then run the held-out test comparison of TF-IDF,
-   semantic, hybrid and hybrid+reranker.
-4. Perform error analysis, counterfactual fairness tests, and the privacy/security review.
-5. Write the Phase 3 methodology, reports and completion report.
+1. Run `docker compose up --build` on a Docker host and verify the three-service stack,
+   PostgreSQL persistence and container health checks.
+2. Add real authentication and per-user authorization before multi-tenant deployment.
+3. Re-validate parsing, ranking and fairness on lawfully obtained, consented real resumes.
+4. Add scheduled retention purging and backup/restore runbooks for a production database.
+5. Consider an ANN index and pre-filtered retrieval only after measuring a larger corpus.
 
-Detailed methodology and measured numbers: [`docs/MATCHING_METHODOLOGY.md`](docs/MATCHING_METHODOLOGY.md)
-and [`reports/PHASE_2_COMPLETION_REPORT.md`](reports/PHASE_2_COMPLETION_REPORT.md).
-
-## Blockers / risks
-
-- No real resume dataset is bundled (privacy/licensing); all quality claims are scoped to the
-  synthetic corpus.
-- Single annotator for relevance labels; no inter-annotator agreement.
-- Two-column detection is heuristic and limited to two columns.
+Detailed reports: [`reports/PHASE_3_COMPLETION_REPORT.md`](reports/PHASE_3_COMPLETION_REPORT.md),
+[`reports/PHASE_4_COMPLETION_REPORT.md`](reports/PHASE_4_COMPLETION_REPORT.md) and
+[`reports/BASELINE_VS_HYBRID_RESULTS.md`](reports/BASELINE_VS_HYBRID_RESULTS.md).

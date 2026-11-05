@@ -1,0 +1,442 @@
+{
+  "top_k": 10,
+  "summary": {
+    "strong_match_in_top_k": 8,
+    "partial_match_in_top_k": 11,
+    "strong_match_to_not_relevant_job": 5
+  },
+  "cases": [
+    {
+      "resume_id": "r11",
+      "job_id": "j08",
+      "title": "Junior Machine Learning Engineer",
+      "rank": 2,
+      "score": 0.661113,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [],
+      "missing_preferred": [
+        "Natural Language Processing",
+        "SQL",
+        "Pandas"
+      ],
+      "experience_status": "partial_match",
+      "experience_note": "Evidence indicates 7.2 years vs a stated maximum of 2; the posting may target a different seniority level.",
+      "top_evidence": "ML: PyTorch, Deep Learning, Computer Vision, Convolutional Neural Networks, TensorFlow, Model Evaluation, Transfer Learning",
+      "score_components": {
+        "semantic": 0.460978,
+        "section_relevance": 0.418799,
+        "required_coverage": 1.0,
+        "preferred_coverage": 0.25,
+        "experience_alignment": 0.75
+      }
+    },
+    {
+      "resume_id": "r11",
+      "job_id": "j01",
+      "title": "Machine Learning Engineer, NLP",
+      "rank": 3,
+      "score": 0.534761,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Natural Language Processing",
+        "Transformers",
+        "BERT"
+      ],
+      "missing_preferred": [
+        "MLflow",
+        "FAISS",
+        "Information Retrieval"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 7.2 years against a stated requirement of 3-6 years.",
+      "top_evidence": "Machine Learning Engineer | SensorWorks | 2019-10 - 2021-04",
+      "score_components": {
+        "semantic": 0.463904,
+        "section_relevance": 0.420601,
+        "required_coverage": 0.5,
+        "preferred_coverage": 0.25,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r11",
+      "job_id": "j07",
+      "title": "DevOps Engineer",
+      "rank": 6,
+      "score": 0.472258,
+      "relevance": 0,
+      "kind": "strong_match_to_not_relevant_job",
+      "missing_required": [
+        "Terraform",
+        "CI/CD"
+      ],
+      "missing_preferred": [
+        "Prometheus",
+        "Grafana",
+        "Linux"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 7.2 years against a stated requirement of 5+ years.",
+      "top_evidence": "Engineering: Docker, AWS, Model Deployment, Git",
+      "score_components": {
+        "semantic": 0.349022,
+        "section_relevance": 0.343672,
+        "required_coverage": 0.45,
+        "preferred_coverage": 0.25,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r11",
+      "job_id": "j03",
+      "title": "Backend Engineer (Python)",
+      "rank": 8,
+      "score": 0.43322,
+      "relevance": 0,
+      "kind": "strong_match_to_not_relevant_job",
+      "missing_required": [
+        "FastAPI",
+        "PostgreSQL",
+        "REST APIs"
+      ],
+      "missing_preferred": [
+        "Redis",
+        "Celery"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 7.2 years against a stated requirement of 4+ years.",
+      "top_evidence": "Deployed models as Docker services on AWS with batch and real-time inference.",
+      "score_components": {
+        "semantic": 0.27354,
+        "section_relevance": 0.31522,
+        "required_coverage": 0.4,
+        "preferred_coverage": 0.3125,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r11",
+      "job_id": "j15",
+      "title": "AI Engineer, LLM Applications",
+      "rank": 10,
+      "score": 0.405616,
+      "relevance": 0,
+      "kind": "strong_match_to_not_relevant_job",
+      "missing_required": [
+        "Large Language Models",
+        "Retrieval-Augmented Generation",
+        "Transformers",
+        "Semantic Search"
+      ],
+      "missing_preferred": [
+        "FAISS",
+        "FastAPI"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 7.2 years against a stated requirement of 3-6 years.",
+      "top_evidence": "Deployed models as Docker services on AWS with batch and real-time inference.",
+      "score_components": {
+        "semantic": 0.36092,
+        "section_relevance": 0.308936,
+        "required_coverage": 0.2,
+        "preferred_coverage": 0.5,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r12",
+      "job_id": "j03",
+      "title": "Backend Engineer (Python)",
+      "rank": 5,
+      "score": 0.540856,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "FastAPI",
+        "PostgreSQL",
+        "REST APIs"
+      ],
+      "missing_preferred": [
+        "Redis",
+        "Celery"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 7.9 years against a stated requirement of 4+ years.",
+      "top_evidence": "MLOps Engineer | Falcon Data Platform | 2021-09 - present",
+      "score_components": {
+        "semantic": 0.522164,
+        "section_relevance": 0.448045,
+        "required_coverage": 0.4,
+        "preferred_coverage": 0.5,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r12",
+      "job_id": "j05",
+      "title": "Data Engineer",
+      "rank": 6,
+      "score": 0.524868,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Apache Airflow",
+        "Apache Spark",
+        "Snowflake"
+      ],
+      "missing_preferred": [
+        "Apache Kafka",
+        "dbt",
+        "Data Quality"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 7.9 years against a stated requirement of 4-7 years.",
+      "top_evidence": "Ran a Kubeflow-based model platform supporting 30 data scientists.",
+      "score_components": {
+        "semantic": 0.53526,
+        "section_relevance": 0.431936,
+        "required_coverage": 0.4,
+        "preferred_coverage": 0.25,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r12",
+      "job_id": "j20",
+      "title": "Data Science Manager",
+      "rank": 9,
+      "score": 0.487486,
+      "relevance": 0,
+      "kind": "strong_match_to_not_relevant_job",
+      "missing_required": [
+        "Leadership",
+        "Stakeholder Management",
+        "Mentoring"
+      ],
+      "missing_preferred": [
+        "A/B Testing",
+        "Statistics",
+        "Communication"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 7.9 years against a stated requirement of 6-12 years.",
+      "top_evidence": "MLOps engineer with 6 years of experience running model platforms, CI/CD and monitoring for data science teams.",
+      "score_components": {
+        "semantic": 0.430204,
+        "section_relevance": 0.392832,
+        "required_coverage": 0.4,
+        "preferred_coverage": 0.25,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r13",
+      "job_id": "j09",
+      "title": "Business Intelligence Analyst",
+      "rank": 4,
+      "score": 0.708005,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [],
+      "missing_preferred": [
+        "Business Intelligence"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 3.6 years against a stated requirement of 3-5 years.",
+      "top_evidence": "Analytics: SQL, Microsoft Excel, Data Analysis, Tableau, Statistics",
+      "score_components": {
+        "semantic": 0.544647,
+        "section_relevance": 0.449629,
+        "required_coverage": 0.85,
+        "preferred_coverage": 0.666667,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r13",
+      "job_id": "j18",
+      "title": "Healthcare Data Analyst",
+      "rank": 5,
+      "score": 0.691834,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Healthcare Analytics"
+      ],
+      "missing_preferred": [
+        "Data Quality"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 3.6 years against a stated requirement of 3-6 years.",
+      "top_evidence": "Analytics: SQL, Microsoft Excel, Data Analysis, Tableau, Statistics",
+      "score_components": {
+        "semantic": 0.527846,
+        "section_relevance": 0.48542,
+        "required_coverage": 0.8,
+        "preferred_coverage": 0.666667,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r13",
+      "job_id": "j22",
+      "title": "Product Analyst",
+      "rank": 6,
+      "score": 0.636863,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Metrics Design",
+        "A/B Testing"
+      ],
+      "missing_preferred": [
+        "Product Management"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 3.6 years against a stated requirement of 2-5 years.",
+      "top_evidence": "Analytics: SQL, Microsoft Excel, Data Analysis, Tableau, Statistics",
+      "score_components": {
+        "semantic": 0.541916,
+        "section_relevance": 0.491921,
+        "required_coverage": 0.6,
+        "preferred_coverage": 0.75,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r13",
+      "job_id": "j14",
+      "title": "Senior Data Scientist",
+      "rank": 7,
+      "score": 0.599186,
+      "relevance": 0,
+      "kind": "strong_match_to_not_relevant_job",
+      "missing_required": [
+        "Machine Learning",
+        "A/B Testing"
+      ],
+      "missing_preferred": [
+        "XGBoost",
+        "Mentoring"
+      ],
+      "experience_status": "below_requirement",
+      "experience_note": "Evidence indicates 3.6 years vs a stated minimum of 5; tenure is derived only from dated roles in the experience section.",
+      "top_evidence": "Built a cohort analysis and segmentation study for a fictional subscription business.",
+      "score_components": {
+        "semantic": 0.61962,
+        "section_relevance": 0.486002,
+        "required_coverage": 0.6,
+        "preferred_coverage": 0.5,
+        "experience_alignment": 0.716
+      }
+    },
+    {
+      "resume_id": "r14",
+      "job_id": "j20",
+      "title": "Data Science Manager",
+      "rank": 2,
+      "score": 0.723251,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Leadership"
+      ],
+      "missing_preferred": [],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 8.5 years against a stated requirement of 6-12 years.",
+      "top_evidence": "Data scientist with 7 years of experience designing experiments and production",
+      "score_components": {
+        "semantic": 0.533254,
+        "section_relevance": 0.528497,
+        "required_coverage": 0.8,
+        "preferred_coverage": 1.0,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r14",
+      "job_id": "j02",
+      "title": "Data Analyst",
+      "rank": 3,
+      "score": 0.710946,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Microsoft Excel"
+      ],
+      "missing_preferred": [],
+      "experience_status": "partial_match",
+      "experience_note": "Evidence indicates 8.5 years vs a stated range of 2-4; the posting may target a different seniority level.",
+      "top_evidence": "Built Tableau dashboards used by merchandising teams.",
+      "score_components": {
+        "semantic": 0.66166,
+        "section_relevance": 0.549651,
+        "required_coverage": 0.75,
+        "preferred_coverage": 1.0,
+        "experience_alignment": 0.75
+      }
+    },
+    {
+      "resume_id": "r14",
+      "job_id": "j19",
+      "title": "Fraud Data Scientist",
+      "rank": 6,
+      "score": 0.616906,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Fraud Detection"
+      ],
+      "missing_preferred": [
+        "AWS",
+        "Model Monitoring",
+        "Feature Engineering"
+      ],
+      "experience_status": "clear_match",
+      "experience_note": "Evidence indicates 8.5 years against a stated requirement of 4-8 years.",
+      "top_evidence": "Built XGBoost churn models with calibrated probabilities, improving retention targeting.",
+      "score_components": {
+        "semantic": 0.425249,
+        "section_relevance": 0.385537,
+        "required_coverage": 0.8,
+        "preferred_coverage": 0.25,
+        "experience_alignment": 1.0
+      }
+    },
+    {
+      "resume_id": "r14",
+      "job_id": "j09",
+      "title": "Business Intelligence Analyst",
+      "rank": 9,
+      "score": 0.540042,
+      "relevance": 1,
+      "kind": "partial_match_in_top_k",
+      "missing_required": [
+        "Microsoft Excel"
+      ],
+      "missing_preferred": [
+        "Business Intelligence"
+      ],
+      "experience_status": "partial_match",
+      "experience_note": "Evidence indicates 8.5 years vs a stated range of 3-5; the posting may target a different seniority level.",
+      "top_evidence": "Senior Data Scientist, Lakeview Subscription Group",
+      "score_components": {
+        "semantic": 0.435964,
+        "section_relevance": 0.347243,
+        "required_coverage": 0.6,
+        "preferred_coverage": 0.666667,
+        "experience_alignment": 0.75
+      }
+    }
+  ],
+  "notes": [
+    "Labels are single-annotator judgements on a synthetic corpus.",
+    "A relevance-0 item in the top-k is a ranking error measured against those labels, not proof that the job is objectively unsuitable.",
+    "Missing requirements mean they were not evidenced in the resume text."
+  ],
+  "split": "test",
+  "config_version": "2026-11-04.1",
+  "index_version": "v1-sentence-transformers-all-minilm-l6-v2-23-520c99df"
+}

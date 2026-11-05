@@ -1,7 +1,7 @@
 # TalentLens - Product Requirements
 
 **Version:** 1.0 (Phase 1 baseline)
-**Last updated:** 2026-11-04
+**Last updated:** 2026-11-05
 
 ## 1. Product definition
 
@@ -54,16 +54,16 @@ No automatic rejection.
 | FR-10 | Provide a TF-IDF retrieval baseline and independent skill-overlap scoring | 2 | Done |
 | FR-11 | Generate semantic embeddings for resumes, sections and jobs, with persisted metadata | 2 | Done |
 | FR-12 | Provide FAISS retrieval with a stable job-ID mapping and index versioning | 2 | Done |
-| FR-13 | Score matches with a configurable, normalised hybrid score | 2 | Done (experimental weights) |
+| FR-13 | Score matches with a configurable, normalised hybrid score | 2 | Done (weights frozen after validation) |
 | FR-14 | Compute experience/seniority alignment independently | 2 | Done |
 | FR-15 | Support optional cross-encoder reranking | 2 | Done (disabled by default; negative validation result) |
-| FR-16 | Explain every recommendation with traceable evidence and a score breakdown | 3 | Pending |
-| FR-17 | Report skill gaps with explicit denominators; never claim a candidate lacks a skill | 3 | Pending |
-| FR-18 | Evaluate ranking quality on held-out labelled pairs with standard IR metrics | 3 | Pending |
-| FR-19 | Run counterfactual fairness tests on name/contact/identity changes | 3 | Pending |
-| FR-20 | Serve the workflow through a documented FastAPI backend and Streamlit UI | 4 | Pending |
-| FR-21 | Support resume deletion and retention-based purge | 4 | Pending |
-| FR-22 | Provide Docker, CI, observability and deployment documentation | 4 | Pending |
+| FR-16 | Explain every recommendation with traceable evidence and a score breakdown | 3 | Done |
+| FR-17 | Report skill gaps with explicit denominators; never claim a candidate lacks a skill | 3 | Done |
+| FR-18 | Evaluate ranking quality on held-out labelled pairs with standard IR metrics | 3 | Done |
+| FR-19 | Run counterfactual fairness tests on name/contact/identity changes | 3 | Done (70/70; not demographic fairness) |
+| FR-20 | Serve the workflow through a documented FastAPI backend and Streamlit UI | 4 | Done (locally verified) |
+| FR-21 | Support resume deletion and retention-based purge | 4 | Done |
+| FR-22 | Provide Docker, CI, observability and deployment documentation | 4 | Done (Compose syntax validated; stack not started) |
 
 ## 4. Non-functional requirements
 

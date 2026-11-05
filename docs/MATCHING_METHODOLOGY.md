@@ -1,13 +1,13 @@
-# Matching Methodology - Phase 2
+# Matching Methodology - Phases 2-3
 
-**Status:** Phase 2 implementation and validation-split benchmark complete.
+**Status:** Phase 2 implementation complete; Phase 3 evaluation and evidence layer complete.
 **Config version:** `2026-11-04.1`
 **Index version:** `v1-sentence-transformers-all-minilm-l6-v2-23-520c99df`
 **TF-IDF version:** `tfidf-v1-23-75b6622c`
 **Corpus:** 23 synthetic job postings, 14 synthetic resumes, 140 labelled pairs.
 
 This document describes exactly how a resume becomes a ranked list of jobs. It distinguishes
-what was measured from what is still an experimental default. The score is a **matching /
+what was measured from what remains a documented default. The score is a **matching /
 relevance score**, never a probability of being hired.
 
 ## 1. Scope and inputs
@@ -100,8 +100,9 @@ runtime was already imported. Treat load times as single-run, host-specific meas
 has a smaller footprint; BGE's +0.0095 NDCG@10 on 30 judged pairs is not a reliable advantage.
 BGE remains selectable through `--model` / `embeddings.model_name`. Most importantly, TF-IDF
 slightly exceeds both on this validation set: the project does **not** claim that semantic
-retrieval is already better than lexical retrieval. Phase 3 tests that question on the held-out
-split.
+retrieval is already better than lexical retrieval. Phase 3 tested that question on the
+held-out split: semantic NDCG@10 was 0.9962 vs TF-IDF 0.9906, a small difference on 40 pairs,
+so the project still makes no general superiority claim.
 
 Raw output: `reports/phase2_embedding_benchmark.json`.
 
@@ -128,7 +129,7 @@ python scripts/build_index.py
 
 ## 6. Hybrid score
 
-The experimental default weights are:
+The frozen default weights are:
 
 | Component | Weight | Symbol |
 | --- | --- | --- |
@@ -151,8 +152,10 @@ returned individually; their sum equals the total (within rounding). The full fo
 weights are stored in each `ScoreBreakdown`. `ScoringWeights.from_config()` rejects missing,
 negative or non-normalised weights.
 
-These weights are experimental defaults, not validated results. They will be selected on the
-validation split in Phase 3 and frozen before the held-out test run.
+These weights were frozen before the Phase 2/3 held-out run. Six candidate sets were compared
+on validation only; all reached NDCG@10 1.0000, so none cleared the +0.005 adoption rule and
+the documented defaults were retained. This is a transparent untuned default, not evidence of
+optimality. See `reports/phase3_weight_tuning.json`.
 
 ### Missing and underspecified information
 
@@ -176,9 +179,10 @@ section_score = max over sections s of (cos(section_s, job_requirements) * weigh
 
 The configured section weights are summary 0.6, skills 1.0, experience 1.0, projects 0.9 and
 certifications 0.7. The weighted maximum is divided by the largest available weight, so a resume
-without a skills section is not penalised simply for having fewer sections. This is a
-section-level measure, not sentence-level evidence; sentence-level evidence is a Phase 3
-deliverable.
+without a skills section is not penalised simply for having fewer sections. This remains a
+section-level measure. Phase 3 adds separate sentence-level evidence through
+`matching/explainer.py`: up to three real resume sentences above a cosine floor, with section
+labels and unambiguous character offsets.
 
 ## 8. Skill matching
 
@@ -260,7 +264,7 @@ Resume r09 (data analyst), top 5:
 | 5 | j18 Healthcare Data Analyst | 0.618 |
 
 These are illustrative outputs, not a quality claim. r01's third result is a junior role that the
-label set marks partially relevant; seniority handling is a Phase 3 error-analysis case.
+label set marks partially relevant; seniority handling is a documented error-analysis case.
 
 ## 12. Reproducibility and verification
 
@@ -272,16 +276,20 @@ label set marks partially relevant; seniority handling is a Phase 3 error-analys
   filters, reranking and pipeline reproducibility.
 - `python -m ruff check src tests scripts` is clean.
 
-## 13. Known limitations and Phase 3 work
+## 13. Known limitations
 
-- The corpus is synthetic (23 jobs, 14 resumes), so all measured ranking differences are
-  provisional. The validation set has 30 judged pairs; confidence intervals would be wide.
-- TF-IDF is competitive with or better than both embedding models here; semantic value is not
-  established yet.
-- `MatchExplanation.section_evidence` is intentionally empty in Phase 2; sentence-level evidence
-  and skill-gap reports are Phase 3.
-- Cross-encoder reranking is not beneficial on this validation set and stays off.
+- The corpus is synthetic (23 jobs, 14 resumes). Validation has 30 judged pairs and the held-out
+  test has 40; confidence intervals would be wide. All test NDCG@10 values exceed 0.99.
+- Semantic and TF-IDF results are close; semantic value is not established as a general
+  advantage.
+- Sentence evidence is selected by cosine similarity, not entailment; it can be topically
+  related without proving proficiency. The floor only prevents fabricated citations.
+- Cross-encoder reranking was negative on both validation and test and stays off.
 - Filters retrieve the whole 23-job corpus to guarantee completeness; at larger scale this
   becomes a full scan and needs a pre-filtered index.
 - Experience parsing is regex-based; unusual date formats and part-time overlap are approximated.
-- Weights are experimental; no test-set tuning has occurred.
+- Weights are a frozen documented default; no test-set tuning has occurred.
+
+Held-out results and the full protocol are in
+[`reports/BASELINE_VS_HYBRID_RESULTS.md`](../reports/BASELINE_VS_HYBRID_RESULTS.md) and
+[`docs/EVALUATION_METHODOLOGY.md`](EVALUATION_METHODOLOGY.md).

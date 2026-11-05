@@ -21,10 +21,16 @@ file is the maintained index and records cross-cutting decisions that affect eve
 | ADR-012 | Scores are relevance, not hiring probability | Accepted | same |
 | ADR-013 | Exact FAISS + explicit job-ID map | Accepted | `docs/TECHNICAL_DECISIONS.md#adr-013` |
 | ADR-014 | MiniLM default; BGE selectable after benchmark | Accepted | same |
-| ADR-015 | Hybrid weights are experimental until validation tuning | Accepted | same |
+| ADR-015 | Hybrid weights are experimental until validation tuning | Superseded by ADR-021 | same |
 | ADR-016 | Cross-encoder reranker off by default | Accepted | same |
 | ADR-017 | Section-aware semantic scoring excludes header/education | Accepted | same |
 | ADR-018 | Neutral values for missing requirement information | Accepted | same |
+| ADR-019 | Sentence evidence above an explicit similarity floor | Accepted | same |
+| ADR-020 | Unjudged jobs excluded from ranking metrics | Accepted | same |
+| ADR-021 | Weights frozen despite a validation tie | Accepted | same |
+| ADR-022 | Session-scoped access, not v1 authentication | Accepted | same |
+| ADR-023 | Parsed JSON storage; raw uploads never persisted | Accepted | same |
+| ADR-024 | Compose configuration is unverified until run | Accepted | same |
 
 ## Cross-cutting rules
 

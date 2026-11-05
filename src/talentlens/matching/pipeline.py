@@ -18,7 +18,9 @@ from talentlens.embeddings.embedder import Embedder, LSAEmbedder, get_embedder
 from talentlens.errors import EmptyDocumentError, IndexLoadError, IndexNotBuiltError
 from talentlens.log import get_logger
 from talentlens.matching.experience_matcher import align_experience
-from talentlens.matching.hybrid_scorer import HybridScorer
+from talentlens.matching.explainer import EvidenceBuilder
+from talentlens.matching.hybrid_scorer import HybridScorer, ScoringWeights
+from talentlens.matching.skill_gaps import build_skill_gap_report
 from talentlens.matching.skill_matcher import SkillMatchResult, match_skills
 from talentlens.retrieval.faiss_store import FaissStore, build_store
 from talentlens.retrieval.reranker import Reranker, build_reranker
@@ -32,6 +34,7 @@ from talentlens.schemas import (
     ParsingStatus,
     ResumeDocument,
     SectionName,
+    SkillGapReport,
 )
 from talentlens.skills.taxonomy import SkillTaxonomy, get_taxonomy
 from talentlens.utils.text import slugify
@@ -247,8 +250,10 @@ class MatchingPipeline:
         strategy: str = "hybrid",
         filters: MatchFilters | None = None,
         rerank: bool | Reranker | None = None,
+        weights: ScoringWeights | None = None,
     ) -> MatchResponse:
         total_timer = Timer().start()
+        active_scorer = HybridScorer(weights) if weights is not None else self.scorer
         timings: dict[str, float] = {}
         warnings: list[str] = []
         top_k = int(top_k or self.config.get("retrieval.top_k", 10))
@@ -312,7 +317,9 @@ class MatchingPipeline:
 
         if not candidate_ids:
             timings["total_ms"] = total_timer.stop()
-            return self._empty_response(document, strategy, warnings, timings)
+            return self._empty_response(
+                document, strategy, warnings, timings, active_scorer.weights.as_dict()
+            )
 
         score_timer = Timer().start()
         requirement_texts = [self.jobs[job_id].requirements_text() for job_id in candidate_ids]
@@ -348,7 +355,7 @@ class MatchingPipeline:
             elif strategy == "semantic":
                 breakdown = HybridScorer.baseline(components, baseline="semantic")
             else:
-                breakdown = self.scorer.score(components)
+                breakdown = active_scorer.score(components)
             explanation = self._explain(document, job, breakdown, skill_result, experience, strategy)
             scored.append((job, breakdown.total, breakdown, skill_result, explanation))
         timings["score_ms"] = score_timer.stop()
@@ -377,8 +384,31 @@ class MatchingPipeline:
             if reranker.degraded:
                 warnings.append(reranker.degradation_reason or "Reranker degraded to a lexical fallback.")
 
+        evidence_timer = Timer().start()
+        requirement_row = {job_id: index for index, job_id in enumerate(candidate_ids)}
+        builder = EvidenceBuilder(document, self.embedder)
+        final_scored: list[tuple[JobPosting, float, object, SkillMatchResult, MatchExplanation]] = []
+        for job, total, breakdown, skill, explanation in scored[:top_k]:
+            row = requirement_row.get(job.job_id)
+            evidence = (
+                builder.for_requirement(requirement_vectors[row]) if row is not None else []
+            )
+            if evidence:
+                explanation = explanation.model_copy(update={"section_evidence": evidence})
+            else:
+                explanation = explanation.model_copy(
+                    update={
+                        "methodology_notes": [
+                            *explanation.methodology_notes,
+                            "No resume sentence crossed the evidence similarity threshold for this job.",
+                        ]
+                    }
+                )
+            final_scored.append((job, total, breakdown, skill, explanation))
+        timings["evidence_ms"] = evidence_timer.stop()
+
         matches: list[JobMatch] = []
-        for rank, (job, _total, breakdown, _skill, explanation) in enumerate(scored[:top_k], start=1):
+        for rank, (job, _total, breakdown, _skill, explanation) in enumerate(final_scored, start=1):
             matches.append(
                 JobMatch(
                     job_id=job.job_id,
@@ -409,7 +439,7 @@ class MatchingPipeline:
             model_id=self.embedder.model_id,
             index_version=self.store.version,
             config_version=self.config.config_version,
-            weights=self.weights,
+            weights=active_scorer.weights.as_dict(),
             reranked=reranked,
             timings_ms={key: round(value, 2) for key, value in timings.items()},
             warnings=[*self.warnings, *warnings],
@@ -526,6 +556,7 @@ class MatchingPipeline:
         strategy: str,
         warnings: list[str],
         timings: dict[str, float],
+        weights: dict[str, float],
     ) -> MatchResponse:
         return MatchResponse(
             resume_id=document.resume_id,
@@ -535,7 +566,7 @@ class MatchingPipeline:
             model_id=self.embedder.model_id,
             index_version=self.store.version,
             config_version=self.config.config_version,
-            weights=self.weights,
+            weights=weights,
             warnings=[*self.warnings, *warnings],
             timings_ms={key: round(value, 2) for key, value in timings.items()},
         )
@@ -551,6 +582,22 @@ class MatchingPipeline:
         """Ordered job IDs over the whole corpus (used by the Phase 3 evaluator)."""
         response = self.match(document, top_k=len(self.jobs), strategy=strategy)
         return [match.job_id for match in response.results]
+
+    def skill_gap_report(
+        self,
+        document: ResumeDocument,
+        *,
+        job_ids: list[str] | None = None,
+        max_jobs: int | None = None,
+    ) -> SkillGapReport:
+        """Structured gaps for a resume, optionally restricted to recommended jobs."""
+        if job_ids is None:
+            jobs = list(self.jobs.values())
+        else:
+            jobs = [self.jobs[job_id] for job_id in job_ids if job_id in self.jobs]
+        return build_skill_gap_report(
+            document, jobs, taxonomy=self.taxonomy, max_jobs=max_jobs
+        )
 
     def stats(self) -> dict[str, object]:
         return {

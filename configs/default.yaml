@@ -85,8 +85,9 @@ retrieval:
     candidate_multiplier: 2
 
 matching:
-  # Experimental defaults. Selected/tuned on the validation split during Phase 3,
-  # then frozen before the held-out test run. See docs/MATCHING_METHODOLOGY.md.
+  # Frozen defaults: validation-only candidates all tied at NDCG@10 1.0000, so the
+  # documented default was retained before the held-out test run. See
+  # docs/MATCHING_METHODOLOGY.md and reports/phase3_weight_tuning.json.
   weights:
     semantic: 0.30
     section_relevance: 0.15
@@ -104,6 +105,12 @@ matching:
     publications: 0.6
     additional: 0.3
   max_section_evidence: 3
+  evidence:
+    # Minimum cosine similarity for a resume sentence to be shown as supporting evidence.
+    # Below this floor the explanation says no sentence crossed the threshold rather than
+    # manufacturing a citation.
+    min_similarity: 0.30
+    max_items: 3
   max_skills_per_job: 40
   reranker:
     enabled: false
@@ -143,6 +150,9 @@ api:
   page_size_default: 20
   page_size_max: 100
   background_processing: true
+  # Local HTTP uses false; set true behind TLS in a real deployment.
+  cookie_secure: false
+  session_cookie_name: talentlens_session
 
 monitoring:
   enabled: true

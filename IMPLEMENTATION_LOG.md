@@ -135,3 +135,79 @@ Chronological record of what was built, what was measured, and what failed first
 ### Next
 Phase 3: sentence-level evidence, skill-gap reports, ranking evaluator, validation-tuned and
 frozen weights, held-out comparison, error analysis, counterfactual fairness and privacy review.
+
+---
+
+## 2026-11-05 - Phase 3
+
+### Explainability and gaps
+- Added `matching/explainer.py`: section candidates, sentence splitting, deduplication, unique
+offsets, cosine selection with `matching.evidence.min_similarity` (0.30) and a maximum of three.
+Wired evidence into the pipeline after final ordering, with explicit timing and a note when no
+sentence passes.
+- Added `matching/skill_gaps.py` and `MatchingPipeline.skill_gap_report()` for per-job required
+and preferred coverage, evidenced/missing skills, frequent gaps and ambiguous mentions.
+- Added 6 explainer/gap tests. Confirmed real r01 evidence with character offsets.
+
+### Evaluation
+- Added `evaluation/metrics.py`, `evaluation/labels.py`, `evaluation/fairness.py` and
+`evaluation/error_analysis.py`.
+- Added `scripts/tune_weights.py`, `evaluate_ranking.py`, `check_fairness.py` and
+`error_analysis.py`.
+- Validation-only tuning: six candidates all reached NDCG@10 1.0000, so defaults were frozen.
+- One held-out run (r11-r14, 40 judged pairs): hybrid NDCG@10 0.998711, semantic 0.996218,
+TF-IDF 0.990624, hybrid+CE 0.934082. Cross-encoder remains off.
+- 70/70 counterfactual checks passed. 16 actual held-out error cases written to
+`reports/ERROR_ANALYSIS.md`.
+
+### Bugs found and fixed
+| Issue | Resolution |
+| --- | --- |
+| `tune_weights.py` initially reported the number of resumes as `judged_pairs` | Sum per-job labels instead of `len(dict)`; regenerated the JSON. |
+| `evaluate_ranking.py` table omitted P@5/R@5 because aggregate keys only included primary K | Aggregate every requested k for precision/recall and reran both splits. |
+| The first test expectation counted resumes as labels and used a different P@K denominator | Fixed the test to match the documented `min(K, judged)` protocol. |
+
+### Phase 3 artifacts
+- `docs/EXPLAINABILITY.md`, `docs/EVALUATION_METHODOLOGY.md`, `docs/RESPONSIBLE_AI.md`,
+  `docs/PRIVACY_AND_SECURITY.md`
+- `reports/BASELINE_VS_HYBRID_RESULTS.md`, `reports/RANKING_EVALUATION_REPORT.md`,
+  `reports/FAIRNESS_TEST_REPORT.md`, `reports/PHASE_3_COMPLETION_REPORT.md`
+- JSON outputs for validation, test, tuning, fairness and error analysis.
+
+---
+
+## 2026-11-05 - Phase 4
+
+### Backend and storage
+- Added SQLAlchemy 2.0 storage with `sessions`, `resumes` and `match_runs`; only a SHA-256
+session-token hash is stored. SQLite is local, PostgreSQL is Compose. Cascade deletion and a
+24-hour default retention are implemented.
+- Added FastAPI app factory with injectable pipeline/storage, upload/parse, matching, latest
+match, skill gaps, jobs, deletion, health, readiness, metrics and meta routes.
+- Added request IDs, structured errors, per-process rate limiting, foreign-Origin rejection,
+security headers, CORS allow-list and no-store API responses.
+
+### UI, packaging and tests
+- Added Streamlit Candidate Mode with upload, parsed review, filters, evidence cards, component
+chart, gaps, job browser and deletion.
+- Added Dockerfile, Compose stack, `.dockerignore`, idempotent bootstrap, CI workflow and
+API/deployment docs.
+- Added 5 API tests, 2 storage tests and 3 fairness tests. Full suite reached 146 passed.
+
+### Bugs found and fixed
+| Issue | Resolution |
+| --- | --- |
+| API session dependency referenced a removed local token helper | Read the cookie directly in `require_session`; tests caught it. |
+| Retention purge counted resumes after the session cascade had already removed them | Collect resume IDs before deleting sessions; test asserts both records are gone. |
+| API used a generic error for oversized `top_k` (HTTP 500) | Added `InvalidRequestError` (422) and a details payload. |
+
+### Phase 4 artifacts
+- `api/`, `frontend/`, `src/talentlens/storage/`, `src/talentlens/monitoring/`
+- `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.github/workflows/ci.yml`
+- `scripts/bootstrap_runtime.py`, `docs/API.md`, `docs/DEPLOYMENT.md`
+- `reports/PHASE_4_COMPLETION_REPORT.md`, `PROJECT_FINAL_SUMMARY.md`
+
+### Status boundary
+`docker compose config` validated the Compose syntax, but the three-service stack was not started,
+so Compose is configuration-only and is not claimed as verified. The local API and UI path was
+smoke-tested with the real model/index.
