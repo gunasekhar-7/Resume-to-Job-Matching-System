@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(os.environ.get("TALENTLENS_ROOT", Path(__file__).resolve().parents[2])).resolve()
@@ -39,21 +40,38 @@ class EnvSettings(BaseSettings):
     database_url: str = "sqlite:///./artifacts/talentlens.db"
     artifacts_dir: str = "artifacts"
 
-    api_host: str = "0.0.0.0"
+    api_host: str = "127.0.0.1"
     api_port: int = 8000
     api_base_url: str = "http://localhost:8000"
-    frontend_api_url: str = "http://localhost:8000"
     cors_origins: str = "http://localhost:8501"
     rate_limit_per_minute: int = 60
+    #: Per-user identity is enabled when these three values are configured.
+    oidc_issuer: str | None = None
+    oidc_audience: str | None = None
+    oidc_jwks_url: str | None = None
+    require_identity: bool = False
+    #: Service-to-service bearer token. Empty means local-only anonymous access.
+    api_token: SecretStr | None = None
+    #: Fail closed when a token is required but absent. Production defaults to true.
+    require_auth: bool = False
+    #: Override the YAML cookie flag; production deployments should set this true.
+    cookie_secure: bool | None = None
 
     embedding_backend: str | None = None
     embedding_model: str | None = None
     reranker_enabled: bool | None = None
     resume_retention_hours: int | None = None
+    retention_purge_interval_seconds: int | None = None
+    presidio_enabled: bool | None = None
 
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def api_token_value(self) -> str | None:
+        value = self.api_token.get_secret_value() if self.api_token else ""
+        return value.strip() or None
 
 
 @lru_cache(maxsize=1)
@@ -94,8 +112,16 @@ class Config:
             self._data.setdefault("matching", {}).setdefault("reranker", {})["enabled"] = env.reranker_enabled
         if env.resume_retention_hours is not None:
             self._data.setdefault("privacy", {})["resume_retention_hours"] = env.resume_retention_hours
+        if env.retention_purge_interval_seconds is not None:
+            self._data.setdefault("privacy", {})["retention_purge_interval_seconds"] = env.retention_purge_interval_seconds
+        if env.presidio_enabled is not None:
+            self._data.setdefault("privacy", {})["presidio_enabled"] = env.presidio_enabled
         if env.rate_limit_per_minute:
             self._data.setdefault("api", {})["rate_limit_per_minute"] = env.rate_limit_per_minute
+        if env.cookie_secure is not None:
+            self._data.setdefault("api", {})["cookie_secure"] = env.cookie_secure
+        if env.require_auth:
+            self._data.setdefault("api", {})["require_auth"] = True
 
     def validate(self) -> None:
         weights = self.get("matching.weights", {}) or {}
@@ -108,6 +134,11 @@ class Config:
             raise ValueError(f"matching.weights must sum to 1.0 (got {total:.4f})")
         if not self.get("api.page_size_default", 20) <= self.get("api.page_size_max", 100):
             raise ValueError("api.page_size_default must not exceed api.page_size_max")
+        if not self.get("privacy.persist_parsed_text", True):
+            raise ValueError(
+                "privacy.persist_parsed_text must remain true: the API needs retained parsed "
+                "text to answer later match and gap requests. Reduce retention instead."
+            )
 
     # ------------------------------------------------------------------ access
     def get(self, dotted_key: str, default: Any = None) -> Any:

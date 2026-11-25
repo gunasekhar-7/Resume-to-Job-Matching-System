@@ -1,7 +1,7 @@
 # TalentLens - System Architecture
 
-**Version:** 1.0 (Phase 1)
-**Last updated:** 2026-11-04
+**Version:** 1.1 (Phase 4)
+**Last updated:** 2026-11-06
 
 ## 1. Design goals
 
@@ -36,7 +36,7 @@
                  └───────────────────────────────┬─────────────────────────────────┘
                                                  │
                  ┌──────────────────────────── Phase 4 ────────────────────────────┐
-                 │ FastAPI (validation, auth-less by default, rate limiting)        │
+                 │ FastAPI (validation, service bearer auth, rate limiting)          │
                  │ PostgreSQL/SQLite + retention + deletion                         │
                  │ Streamlit Candidate Mode + Docker + CI + observability           │
                  └──────────────────────────────────────────────────────────────────┘
@@ -58,7 +58,7 @@ src/talentlens/
 ├── retrieval/           Phase 2 - TF-IDF, FAISS store, semantic retriever, reranker
 ├── matching/            Phase 2/3 - skill/experience matchers, hybrid scorer, pipeline, explainer
 ├── evaluation/          Phase 3 - splits, metrics, benchmark, error analysis, fairness
-├── storage/             Phase 4 - SQLAlchemy models, repositories, migrations
+├── storage/             Phase 4 - SQLAlchemy models and repositories
 ├── monitoring/          Phase 4 - metrics, health, timings
 └── utils/               text normalisation, IDs, timing
 ```
@@ -99,6 +99,11 @@ They must not import `embeddings`, `retrieval`, `matching`, or `storage`.
   Compose deployment. Content SHA-256 and job content hashes are unique keys for dedupe.
 - Raw uploads are not persisted. Parsed text retention is configurable (default 24h) and
   user deletion removes resume rows, sections, skills and match rows via cascade.
+- `session_identities` optionally binds a browser session to a verified OIDC
+  `issuer#subject`; the identity token itself is never stored. Alembic provides the initial
+  schema baseline and a path for additive migrations.
+- A background task sweeps expired records at a configurable interval; startup also purges
+  expired records, so a stopped process does not leave an unbounded database indefinitely.
 
 ## 7. Retrieval and scoring (Phase 2 implemented)
 
@@ -146,7 +151,8 @@ job-ID map. TF-IDF is fitted independently. See [`MATCHING_METHODOLOGY.md`](MATC
 - No external AI service is called with resume content.
 - Logs carry request IDs and counts, never document text or PII values.
 - Resume content is untrusted; section/skill extraction treats instructions as text.
-- API responses include only what the requesting session owns (Phase 4).
+- API responses include only what the requesting session owns (Phase 4). When OIDC identity
+  is configured, the session must also match the verified `issuer#subject`.
 - Uploaded files never enter Git; `.gitignore` excludes private data and artifacts.
 
 ## 11. Deployment topology (Phase 4 target)
@@ -166,11 +172,13 @@ CPU-first. Model cache and FAISS index live on a volume so containers stay state
 ```text
 Browser / Streamlit
   -> FastAPI (api/main.py)
-       middleware: request ID, rate limit, Origin guard, security headers, CORS
+       middleware: request ID, service/OIDC auth, streaming body cap, rate limit,
+                   Origin guard, security headers, CORS
        service:  parsing -> storage -> matching pipeline -> storage
        routes:   resumes, matches, skill gaps, jobs, health, ready, metrics
   -> SQLAlchemy (src/talentlens/storage)
        sessions -> resumes -> match_runs (cascade delete, retention deadline)
+       session_identities (optional OIDC owner)
   -> MatchingPipeline (Phase 2/3, no duplicated matching logic)
 ```
 
@@ -179,8 +187,8 @@ Browser / Streamlit
 - `api/service.py` owns parse/store/match orchestration. `api/middleware.py` owns transport
   controls. There is no separate ranking implementation in the API or UI.
 - `Storage` stores only the parsed `ResumeDocument` JSON, never the uploaded binary. Sessions
-  store a SHA-256 hash of the cookie token. `match_runs` are replaced on each run and cascade
-  with the resume.
+  store a SHA-256 hash of the cookie token; `session_identities` stores a verified subject key.
+  `match_runs` are replaced on each run and cascade with the resume.
 - `GET /health` reports component status; `GET /ready` returns 503 when DB or pipeline is down;
   `GET /metrics` exposes Prometheus text. `GET /api/v1/meta` exposes non-secret versions.
 - Streamlit is a normal API client. The API session cookie is kept in Streamlit's server-side

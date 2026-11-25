@@ -8,7 +8,12 @@ deadline and cascade-deleted with their session or resume.
 from __future__ import annotations
 
 from talentlens.storage.database import Base, Storage, build_engine, build_session_factory
-from talentlens.storage.models import MatchRunRecord, ResumeRecord, SessionRecord
+from talentlens.storage.models import (
+    MatchRunRecord,
+    ResumeRecord,
+    SessionIdentityRecord,
+    SessionRecord,
+)
 
 __all__ = [
     "Base",
@@ -17,5 +22,6 @@ __all__ = [
     "build_session_factory",
     "MatchRunRecord",
     "ResumeRecord",
+    "SessionIdentityRecord",
     "SessionRecord",
 ]

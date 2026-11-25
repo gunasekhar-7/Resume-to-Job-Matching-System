@@ -41,6 +41,9 @@ class PIIScan:
     entity_types: list[str] = field(default_factory=list)
     counts: dict[str, int] = field(default_factory=dict)
     redacted_text: str = ""
+    #: Non-overlapping (start, end, type) spans used to apply a deployment-selected
+    #: placeholder without re-scanning text after it has been modified.
+    spans: list[tuple[int, int, str]] = field(default_factory=list)
 
     @property
     def has_pii(self) -> bool:
@@ -115,7 +118,26 @@ def detect_pii(text: str, *, use_presidio: bool = False) -> PIIScan:
         entity_types=sorted(counts),
         counts=counts,
         redacted_text="".join(redacted_parts),
+        spans=selected,
     )
+
+
+def redact_with_placeholder(text: str, scan: PIIScan, placeholder: str) -> str:
+    """Apply the configured placeholder to the spans found by ``detect_pii``.
+
+    This is deliberately separate from ``detect_pii``: the scan records entity types
+    once, while the deployment decides whether and how values are persisted.
+    """
+    if not scan.spans:
+        return text
+    parts: list[str] = []
+    cursor = 0
+    for start, end, _kind in scan.spans:
+        parts.append(text[cursor:start])
+        parts.append(placeholder)
+        cursor = end
+    parts.append(text[cursor:])
+    return "".join(parts)
 
 
 def redact_text(text: str, placeholder: str = "[REDACTED]") -> str:

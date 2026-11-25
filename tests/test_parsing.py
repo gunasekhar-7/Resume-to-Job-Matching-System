@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from talentlens.errors import (
@@ -9,8 +11,8 @@ from talentlens.errors import (
     UnsupportedFileTypeError,
 )
 from talentlens.ingestion.loader import validate_upload
-from talentlens.parsing.resume_parser import parse_file
-from talentlens.parsing.sections import match_heading
+from talentlens.parsing.resume_parser import parse_bytes, parse_file
+from talentlens.parsing.sections import detect_sections, match_heading
 from talentlens.schemas import ParsingStatus, SectionName
 
 
@@ -37,6 +39,15 @@ def test_section_spans_offsets_are_consistent(parsed_r01):
         assert span.start_char is not None and span.end_char is not None
         assert 0 <= span.start_char < span.end_char <= len(parsed_r01.full_text)
         assert parsed_r01.full_text[span.start_char:span.end_char] == span.text
+
+
+def test_section_detection_preserves_crlf_offsets():
+    text = "Priya Raghavan\r\nSKILLS\r\nPython, SQL\r\nEXPERIENCE\r\nBuilt services"
+    result = detect_sections(text)
+    assert result.spans
+    for span in result.spans:
+        assert span.start_char is not None and span.end_char is not None
+        assert text[span.start_char:span.end_char] == span.text
 
 
 def test_docx_parsing_matches_pdf_sections(resume_dir):
@@ -123,6 +134,41 @@ def test_pii_is_detected_but_values_are_not_persisted(parsed_r01):
     dumped = parsed_r01.metadata.model_dump_json()
     assert "priya.raghavan@example.com" not in dumped
     assert "+91 98765 43210" not in dumped
+
+
+def test_pii_is_redacted_from_the_persisted_document(parsed_r01):
+    assert "priya.raghavan@example.com" not in parsed_r01.full_text
+    assert "+91 98765 43210" not in parsed_r01.full_text
+    assert "[REDACTED]" in parsed_r01.full_text
+    assert parsed_r01.sections["header"]
+    assert all("priya.raghavan@example.com" not in line for lines in parsed_r01.sections.values() for line in lines)
+
+
+def test_pii_in_the_source_filename_is_redacted(resume_dir):
+    path = resume_dir / "r01_priya_single.pdf"
+    document = parse_bytes("priya.raghavan@example.com.pdf", path.read_bytes())
+    assert "priya.raghavan@example.com" not in document.metadata.source_filename
+    assert document.metadata.source_filename.endswith(".pdf")
+
+
+def test_presidio_flag_is_respected_in_parser(resume_dir, monkeypatch):
+    import talentlens.parsing.resume_parser as rp
+    from talentlens.config import Config
+
+    called_flags = []
+    real_detect = rp.detect_pii
+
+    def mock_detect(text, *, use_presidio=False):
+        called_flags.append(use_presidio)
+        return real_detect(text, use_presidio=False)
+
+    monkeypatch.setattr(rp, "detect_pii", mock_detect)
+
+    cfg_dict = {"privacy": {"presidio_enabled": True}}
+    config = Config(cfg_dict, Path("configs/default.yaml"))
+    path = resume_dir / "r01_priya_single.pdf"
+    rp.parse_bytes("test.pdf", path.read_bytes(), config=config)
+    assert called_flags == [True]
 
 
 @pytest.mark.parametrize(

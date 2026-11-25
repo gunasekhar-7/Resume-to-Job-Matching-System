@@ -2,22 +2,33 @@
 
 from __future__ import annotations
 
+import asyncio
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import Depends, FastAPI, File, Request, Response, UploadFile
+from fastapi import Depends, FastAPI, File, Query, Request, Response, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.gzip import GZipMiddleware
 
-from api.middleware import OriginGuardMiddleware, RateLimitMiddleware, RequestContextMiddleware
+from api.middleware import (
+    BearerAuthMiddleware,
+    BodySizeLimitMiddleware,
+    IdentityAuthMiddleware,
+    OriginGuardMiddleware,
+    RateLimitMiddleware,
+    RequestContextMiddleware,
+)
 from api.schemas import HealthView, JobSummary, MatchRequest, ResumeView, SkillGapView
 from api.service import ResumeService
+from talentlens.auth import OIDCVerifier
 from talentlens.config import Config, get_config, get_env_settings
 from talentlens.embeddings.embedder import get_embedder
 from talentlens.errors import (
+    ConfigurationError,
     FileTooLargeError,
     IndexNotBuiltError,
     InvalidRequestError,
@@ -70,17 +81,72 @@ def _resume_view(document: ResumeDocument, record: ResumeRecord) -> ResumeView:
     )
 
 
+def _job_summaries(pipeline: MatchingPipeline) -> list[JobSummary]:
+    return [
+        JobSummary(
+            job_id=job.job_id,
+            title=job.title,
+            company=job.company,
+            location=job.location,
+            work_arrangement=job.work_arrangement,
+            seniority=job.seniority,
+            employment_type=job.employment_type,
+            required_skills=job.required_skill_names,
+        )
+        for job in sorted(pipeline.jobs.values(), key=lambda item: item.job_id)
+    ]
+
+
 def create_app(
     *,
     config: Config | None = None,
     pipeline: MatchingPipeline | None = None,
     storage: Storage | None = None,
     rate_limit_per_minute: int | None = None,
+    api_token: str | None = None,
+    require_auth: bool | None = None,
+    oidc_verifier: OIDCVerifier | None = None,
 ) -> FastAPI:
     config = config or get_config()
     settings = get_env_settings()
+    configured_token = api_token if api_token is not None else settings.api_token_value
+    auth_required = (
+        bool(require_auth)
+        if require_auth is not None
+        else bool(
+            config.get("api.require_auth", False)
+            or settings.require_auth
+            or settings.env.lower() in {"production", "prod"}
+        )
+    )
+    if auth_required and not configured_token:
+        raise ConfigurationError(
+            "Authentication is required but TALENTLENS_API_TOKEN is not set. "
+            "Set a high-entropy token or disable TALENTLENS_REQUIRE_AUTH for local-only use."
+        )
+    oidc_configured = bool(
+        settings.oidc_issuer and settings.oidc_audience and settings.oidc_jwks_url
+    )
+    identity_required = bool(settings.require_identity or oidc_configured or oidc_verifier)
+    if identity_required and oidc_verifier is None:
+        if not oidc_configured:
+            raise ConfigurationError(
+                "Per-user identity is required but TALENTLENS_OIDC_ISSUER, "
+                "TALENTLENS_OIDC_AUDIENCE and TALENTLENS_OIDC_JWKS_URL are not all set."
+            )
+        oidc_verifier = OIDCVerifier(
+            issuer=str(settings.oidc_issuer),
+            audience=str(settings.oidc_audience),
+            jwks_url=str(settings.oidc_jwks_url),
+        )
     retention_hours = int(config.get("privacy.resume_retention_hours", 24))
-    storage = storage or Storage(settings.database_url, retention_hours=retention_hours)
+    storage = storage or Storage(
+        settings.database_url,
+        retention_hours=retention_hours,
+        max_resumes_per_session=int(
+            config.get("privacy.max_retained_resumes_per_session", 20)
+        ),
+    )
     limit = int(
         rate_limit_per_minute
         if rate_limit_per_minute is not None
@@ -93,6 +159,7 @@ def create_app(
         app.state.storage = storage
         app.state.pipeline = pipeline
         app.state.pipeline_error = None
+        app.state.job_summaries = None
         storage.init()
         storage.purge_expired()
         if app.state.pipeline is None:
@@ -101,6 +168,29 @@ def create_app(
             except Exception as exc:  # startup must remain inspectable via /ready
                 app.state.pipeline_error = f"{type(exc).__name__}: {exc}"
                 logger.exception("Matching pipeline is not available at startup")
+        if app.state.pipeline is not None:
+            app.state.job_summaries = _job_summaries(app.state.pipeline)
+        purge_task: asyncio.Task[None] | None = None
+        purge_interval = float(
+            config.get("privacy.retention_purge_interval_seconds", 3600)
+        )
+        if purge_interval > 0:
+
+            async def retention_loop() -> None:
+                while True:
+                    await asyncio.sleep(purge_interval)
+                    try:
+                        removed = await asyncio.to_thread(storage.purge_expired)
+                        if removed:
+                            logger.info(
+                                "Retention purge removed %d expired records", removed
+                            )
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception:
+                        logger.exception("Background retention purge failed")
+
+            purge_task = asyncio.create_task(retention_loop())
         app.state.ready_at = datetime.now(timezone.utc)
         logger.info(
             "API started (config=%s, database=%s, pipeline=%s)",
@@ -108,16 +198,21 @@ def create_app(
             "up" if storage.health() else "down",
             "up" if app.state.pipeline else "down",
         )
-        yield
-        storage.dispose()
+        try:
+            yield
+        finally:
+            if purge_task is not None:
+                purge_task.cancel()
+                await asyncio.gather(purge_task, return_exceptions=True)
+            storage.dispose()
 
     app = FastAPI(
         title="TalentLens API",
         version=config.project_version,
         description=(
             "Explainable resume-to-job matching. Scores are relevance estimates, never "
-            "probabilities of being hired. A browser session cookie scopes access to the "
-            "resume it uploaded; this is not multi-user authentication."
+            "probabilities of being hired. When OIDC identity is configured, a verified "
+            "per-user identity is bound to the session cookie and resume access."
         ),
         lifespan=lifespan,
     )
@@ -125,17 +220,40 @@ def create_app(
     app.state.pipeline = pipeline
     app.state.config = config
     app.state.pipeline_error = None
+    app.state.job_summaries = None
+    app.state.auth_required = auth_required
+    app.state.identity_required = identity_required
 
-    # Added in reverse: RequestContext is outermost so every response carries a request id.
+    # Added in reverse: CORS is outermost, then request context so even auth/body-limit
+    # responses carry a request id and the standard security headers.
     app.add_middleware(OriginGuardMiddleware, allowed_origins=settings.cors_origin_list)
+    app.add_middleware(
+        BearerAuthMiddleware,
+        token=configured_token,
+        protected_prefixes=("/api/", "/metrics"),
+    )
+    if oidc_verifier is not None:
+        app.add_middleware(
+            IdentityAuthMiddleware,
+            verifier=oidc_verifier,
+            protected_prefixes=("/api/",),
+        )
+    max_body_bytes = int(float(config.get("ingestion.max_file_size_mb", 10)) * 1024 * 1024) + (1024 * 1024)
+    app.add_middleware(BodySizeLimitMiddleware, max_bytes=max_body_bytes)
     app.add_middleware(RateLimitMiddleware, limit_per_minute=limit)
     app.add_middleware(RequestContextMiddleware)
+    app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
         allow_credentials=True,
         allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "X-Request-ID"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "X-Request-ID",
+            "X-TalentLens-Id-Token",
+        ],
     )
 
     # ------------------------------------------------------------------ dependencies
@@ -154,7 +272,9 @@ def create_app(
 
     def require_session(request: Request) -> str:
         token = request.cookies.get(SESSION_COOKIE)
-        record = storage.get_session(token) if token else None
+        record = storage.get_session(
+            token, user_id=getattr(request.state, "user_id", None)
+        ) if token else None
         if record is None:
             raise SessionRequiredError(
                 "A valid session cookie is required. Upload a resume in this browser session first."
@@ -205,11 +325,12 @@ def create_app(
     @app.get("/health", response_model=HealthView, tags=["operations"])
     def health() -> HealthView:
         pipeline_up = app.state.pipeline is not None
+        database_up = storage.health()
         return HealthView(
-            status="ok" if pipeline_up and storage.health() else "degraded",
+            status="ok" if pipeline_up and database_up else "degraded",
             version=config.project_version,
             config_version=config.config_version,
-            database=storage.health(),
+            database=database_up,
             pipeline=pipeline_up,
             index_version=app.state.pipeline.store.version if pipeline_up else None,
             jobs=len(app.state.pipeline.jobs) if pipeline_up else 0,
@@ -246,20 +367,17 @@ def create_app(
         }
 
     @app.get("/api/v1/jobs", response_model=list[JobSummary], tags=["jobs"])
-    def list_jobs(service: ResumeService = Depends(get_service)) -> list[JobSummary]:
-        return [
-            JobSummary(
-                job_id=job.job_id,
-                title=job.title,
-                company=job.company,
-                location=job.location,
-                work_arrangement=job.work_arrangement,
-                seniority=job.seniority,
-                employment_type=job.employment_type,
-                required_skills=job.required_skill_names,
-            )
-            for job in sorted(service.jobs(), key=lambda item: item.job_id)
-        ]
+    def list_jobs(
+        response: Response,
+        limit: int = Query(50, ge=1, le=200),
+        offset: int = Query(0, ge=0),
+        service: ResumeService = Depends(get_service),
+    ) -> list[JobSummary]:
+        if app.state.job_summaries is None:
+            app.state.job_summaries = _job_summaries(service.pipeline)
+        summaries = app.state.job_summaries
+        response.headers["X-Total-Count"] = str(len(summaries))
+        return summaries[offset : offset + limit]
 
     @app.get("/api/v1/jobs/{job_id}", response_model=JobPosting, tags=["jobs"])
     def get_job(job_id: str, service: ResumeService = Depends(get_service)) -> JobPosting:
@@ -283,9 +401,10 @@ def create_app(
             raise FileTooLargeError(f"File exceeds the {max_bytes // (1024 * 1024)} MB limit")
         # Resolve a session before parsing so an invalid file never leaves a stored record.
         token = request.cookies.get(SESSION_COOKIE)
-        session = storage.get_session(token) if token else None
+        user_id = getattr(request.state, "user_id", None)
+        session = storage.get_session(token, user_id=user_id) if token else None
         if session is None:
-            token, session = storage.create_session()
+            token, session = storage.create_session(user_id=user_id)
         document, record = service.ingest(file.filename or "", content, session_id=session.id)
         elapsed = timer.stop()
         logger.info("Resume ingested in %.1f ms (%d skills)", elapsed, len(document.skills))
@@ -392,10 +511,16 @@ def create_app(
         return SkillGapView(report=report, job_ids=[item.job_id for item in report.per_job])
 
     @app.get("/api/v1/resumes", tags=["resumes"])
-    def list_resumes(session_id: str = Depends(require_session)) -> list[dict[str, Any]]:
-        # The repository intentionally has no bulk listing query; expose a minimal
-        # session-scoped list from records, never from another session.
-        records = storage.list_resumes(session_id)
+    def list_resumes(
+        response: Response,
+        limit: int = Query(50, ge=1, le=200),
+        offset: int = Query(0, ge=0),
+        session_id: str = Depends(require_session),
+    ) -> list[dict[str, Any]]:
+        # The repository intentionally has no cross-session listing query; this list is
+        # bounded and scoped to the verified session.
+        records = storage.list_resumes(session_id, limit=limit, offset=offset)
+        response.headers["X-Total-Count"] = str(storage.count_resumes(session_id))
         return [
             {
                 "resume_id": record.resume_id,

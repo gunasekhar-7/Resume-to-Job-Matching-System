@@ -244,8 +244,9 @@ education. Education remains visible to users but is not scored. Location and wo
 are user filters only.
 
 **Consequences.** Less proxy leakage from identity and prestige. Section relevance is coarser than
-sentence-level evidence; Phase 3 adds traceable sentence evidence. The fallback query for a
-document with no detected sections uses full text and must be re-checked in the privacy review.
+sentence-level evidence; Phase 3 adds traceable sentence evidence. A heading-less document uses
+only extracted skill names for retrieval; if none exist, semantic and TF-IDF signals are neutral,
+so raw full text can never introduce a name, contact detail or education institution into a score.
 
 ---
 
@@ -308,18 +309,24 @@ default. Future changes require a new frozen configuration and a new documented 
 
 ---
 
-## ADR-022 - Session-scoped access instead of v1 authentication
+## ADR-022 - Service bearer authentication plus session-scoped resume ownership
 
 **Context.** The product brief requires resume privacy and deletion but does not require user
-accounts. Adding full authentication would expand scope and create credential-handling risk.
+accounts. A public API with no authentication is not acceptable even for a demo deployment.
 
-**Decision.** Issue a random, HttpOnly, SameSite=Lax cookie on upload. Store only its SHA-256
-hash. Scope every resume query by that session. Reject foreign-origin state changes. Document
-that this is not multi-user authentication and must be replaced before a multi-tenant launch.
+**Decision.** Require a high-entropy service bearer token (`TALENTLENS_API_TOKEN`) for
+`/api/*` and `/metrics`; production/Compose fails closed if it is missing. On upload, issue a
+random HttpOnly, SameSite=Lax cookie and store only its SHA-256 hash. Scope every resume query
+by that session. Reject foreign-origin state changes and add request-size, security-header and
+retention-quota controls. On request, verify an OIDC ID token against issuer, audience, JWKS and
+expiry, then bind its `issuer#subject` to the session in `session_identities`; expose the same
+identity gate through Streamlit OIDC.
 
-**Consequences.** Cross-session access is prevented in tests without inventing an account
-system. A stolen cookie is a bearer token; TLS, retention and a real auth layer are production
-requirements. Streamlit keeps the cookie server-side in its own session state.
+**Consequences.** Cross-session access is prevented in tests and unauthenticated API use is
+rejected. The service token remains deployment-wide; OIDC adds per-user ownership and prevents
+anonymous reuse of an identity-bound cookie. A live-provider login, logout and key-rotation test
+is still required. Streamlit keeps the API cookie and service token server-side in its own
+session state.
 
 ---
 
@@ -330,11 +337,13 @@ rewriting the validated schemas.
 
 **Decision.** Store the validated `ResumeDocument` JSON in a `resumes` row, tied to a session and
 an expiry, with cascading `match_runs`. Use SQLite locally and PostgreSQL in Compose. Never store
-the uploaded binary. Purge expired sessions/resumes at startup and on demand.
+the uploaded binary. Purge expired sessions/resumes at startup and on a configurable background
+sweep. Keep Alembic as the schema-evolution path.
 
-**Consequences.** Schemas remain authoritative and deletion is a single cascade. There is no
-built-in scheduler, so production needs a purge job. JSON documents are less queryable than
-normalised skill rows; that trade-off is acceptable for the v1 retrieval path.
+**Consequences.** Schemas remain authoritative and deletion is a single cascade. The in-process
+sweep does not run while the API is stopped, so production still needs an external scheduler for
+strict retention guarantees. JSON documents are less queryable than normalised skill rows; that
+trade-off is acceptable for the v1 retrieval path.
 
 ---
 

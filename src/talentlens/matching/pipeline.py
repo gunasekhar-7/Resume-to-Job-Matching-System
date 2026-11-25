@@ -127,6 +127,12 @@ class MatchingPipeline:
                 f"{sorted(not_indexed)[:5]}"
             )
         self.scorer = HybridScorer()
+        # Job requirements and their embeddings are immutable for the lifetime of the
+        # index. Compute them once instead of re-encoding every candidate set per request.
+        self._requirement_texts = {
+            job_id: job.requirements_text() for job_id, job in self.jobs.items()
+        }
+        self._requirement_vectors: dict[str, np.ndarray] = {}
         self.section_weights = {
             str(key): float(value)
             for key, value in (self.config.get("matching.section_weights", {}) or {}).items()
@@ -281,38 +287,66 @@ class MatchingPipeline:
 
         query_text = document_query_text(document)
         embed_timer = Timer().start()
-        query_vector = self.embedder.encode_one(query_text)
+        if query_text:
+            query_vector = self.embedder.encode_one(query_text)
+        else:
+            # Never embed raw full text as a fallback: a heading-less resume can carry
+            # names, contact details and education in its first lines.
+            query_vector = np.zeros(self.embedder.dimension, dtype=np.float32)
         timings["embed_resume_ms"] = embed_timer.stop()
 
         retrieve_timer = Timer().start()
-        # Filters are applied to the retrieved candidate list. With a filter active we
-        # retrieve the whole (small, exact-index) corpus so a filter can never silently
-        # hide an allowed job behind the top-N cut. At larger scale this becomes a
-        # full scan; a pre-filtered index is a Phase 4 optimisation.
-        candidate_k = (
-            len(self.jobs)
-            if filters is not None
-            else min(
-                len(self.jobs),
-                max(top_k * int(self.config.get("retrieval.semantic.candidate_multiplier", 3)), 30),
+        if not query_text:
+            warnings.append(
+                "No scorable professional sections were detected; semantic and TF-IDF "
+                "signals are unavailable and ranking uses skills and experience only."
             )
-        )
-        semantic_hits = self.store.search(query_vector, candidate_k)
-        tfidf_hits = (
-            self.tfidf.search(query_text, candidate_k) if strategy in {"hybrid", "tfidf"} else []
-        )
-        if strategy == "semantic":
-            ordered_ids = [hit.job_id for hit in semantic_hits]
-        elif strategy == "tfidf":
-            ordered_ids = [hit.job_id for hit in tfidf_hits]
+            # Skills and experience are still valid signals; do not drop the resume
+            # entirely, but do not let untrusted text choose the candidate set.
+            candidate_ids = sorted(allowed)
+            tfidf_scores = {}
         else:
-            ordered_ids = []
-            seen: set[str] = set()
-            for hit in [*semantic_hits, *tfidf_hits]:
-                if hit.job_id not in seen:
-                    seen.add(hit.job_id)
-                    ordered_ids.append(hit.job_id)
-        candidate_ids = [job_id for job_id in ordered_ids if job_id in allowed and job_id in self.jobs]
+            # Filters are applied to the retrieved candidate list. With a filter active we
+            # retrieve the whole (small, exact-index) corpus so a filter can never silently
+            # hide an allowed job behind the top-N cut. At larger scale this becomes a
+            # full scan; a pre-filtered index is a Phase 4 optimisation.
+            candidate_k = (
+                len(self.jobs)
+                if filters is not None
+                else min(
+                    len(self.jobs),
+                    max(
+                        top_k
+                        * int(self.config.get("retrieval.semantic.candidate_multiplier", 3)),
+                        30,
+                    ),
+                )
+            )
+            semantic_hits = self.store.search(query_vector, candidate_k)
+            tfidf_hits = (
+                self.tfidf.search(query_text, candidate_k)
+                if strategy in {"hybrid", "tfidf"}
+                else []
+            )
+            if strategy == "semantic":
+                ordered_ids = [hit.job_id for hit in semantic_hits]
+            elif strategy == "tfidf":
+                ordered_ids = [hit.job_id for hit in tfidf_hits]
+            else:
+                ordered_ids = []
+                seen: set[str] = set()
+                for hit in [*semantic_hits, *tfidf_hits]:
+                    if hit.job_id not in seen:
+                        seen.add(hit.job_id)
+                        ordered_ids.append(hit.job_id)
+            candidate_ids = [
+                job_id for job_id in ordered_ids if job_id in allowed and job_id in self.jobs
+            ]
+            tfidf_scores = (
+                self.tfidf.scores(query_text, candidate_ids)
+                if strategy in {"hybrid", "tfidf"}
+                else {}
+            )
         timings["retrieve_ms"] = retrieve_timer.stop()
 
         if not candidate_ids:
@@ -322,8 +356,7 @@ class MatchingPipeline:
             )
 
         score_timer = Timer().start()
-        requirement_texts = [self.jobs[job_id].requirements_text() for job_id in candidate_ids]
-        requirement_vectors = self.embedder.encode(requirement_texts)
+        requirement_vectors = self._requirement_vectors_for(candidate_ids)
         section_names, section_vectors, section_weights = self._resume_sections(document)
         section_scores = self._section_scores(section_vectors, section_weights, requirement_vectors)
 
@@ -339,9 +372,7 @@ class MatchingPipeline:
             job = self.jobs[job_id]
             skill_result = match_skills(document, job, taxonomy=self.taxonomy)
             experience = align_experience(document, job)
-            tfidf_score = (
-                self.tfidf.score(query_text, job_id) if strategy in {"hybrid", "tfidf"} else 0.0
-            )
+            tfidf_score = tfidf_scores.get(job_id, 0.0)
             components = {
                 "semantic": semantic_scores[job_id],
                 "section_relevance": section_scores[position],
@@ -373,7 +404,7 @@ class MatchingPipeline:
             )
             pool = scored[:pool_size]
             candidates = [(job.job_id, job.searchable_text()) for job, _, _, _, _ in pool]
-            rerank_results = reranker.rerank(document.full_text, candidates, pool_size)
+            rerank_results = reranker.rerank(query_text, candidates, pool_size)
             by_id = {job.job_id: (job, total, breakdown, skill, explanation) for job, total, breakdown, skill, explanation in pool}
             reordered = [by_id[result.job_id] for result in rerank_results if result.job_id in by_id]
             remaining = [item for item in scored if item[0].job_id not in {r.job_id for r in rerank_results}]
@@ -446,6 +477,16 @@ class MatchingPipeline:
         )
 
     # ------------------------------------------------------------------ internals
+    def _requirement_vectors_for(self, job_ids: list[str]) -> np.ndarray:
+        missing = [job_id for job_id in job_ids if job_id not in self._requirement_vectors]
+        if missing:
+            encoded = self.embedder.encode([self._requirement_texts[job_id] for job_id in missing])
+            for job_id, vector in zip(missing, encoded, strict=False):
+                self._requirement_vectors[job_id] = vector
+        if not job_ids:
+            return np.zeros((0, self.embedder.dimension), dtype=np.float32)
+        return np.vstack([self._requirement_vectors[job_id] for job_id in job_ids])
+
     def _resolve_reranker(self, rerank: bool | Reranker | None) -> Reranker | None:
         if rerank is False:
             return None

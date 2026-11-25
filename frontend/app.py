@@ -16,14 +16,34 @@ from typing import Any
 import httpx
 import streamlit as st
 
-API_URL = os.environ.get("TALENTLENS_API_URL", "http://localhost:8000").rstrip("/")
+API_URL = (
+    os.environ.get("TALENTLENS_API_URL")
+    or os.environ.get("TALENTLENS_FRONTEND_API_URL")
+    or "http://localhost:8000"
+).rstrip("/")
+API_TOKEN = os.environ.get("TALENTLENS_API_TOKEN", "").strip()
+UI_AUTH_REQUIRED = os.environ.get("TALENTLENS_UI_AUTH", "false").lower() == "true"
 TIMEOUT = httpx.Timeout(120.0, connect=10.0)
+
+
+def identity_token() -> str:
+    """Return the OIDC ID token only inside the server-side Streamlit process."""
+    if not UI_AUTH_REQUIRED:
+        return ""
+    try:
+        return str(st.user.tokens.get("id", "") or "")
+    except Exception:  # noqa: BLE001 - missing expose_tokens is an auth configuration error
+        return ""
 
 
 def api_client() -> httpx.Client:
     token = st.session_state.get("session_token")
     cookies = {"talentlens_session": token} if token else {}
-    return httpx.Client(base_url=API_URL, cookies=cookies, timeout=TIMEOUT)
+    headers = {"Authorization": f"Bearer {API_TOKEN}"} if API_TOKEN else {}
+    identity = identity_token()
+    if identity:
+        headers["X-TalentLens-Id-Token"] = identity
+    return httpx.Client(base_url=API_URL, cookies=cookies, headers=headers, timeout=TIMEOUT)
 
 
 def remember_cookie(response: httpx.Response) -> None:
@@ -200,7 +220,25 @@ def render_gaps(resume_id: str, match_ids: list[str]) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="TalentLens Candidate Mode", page_icon="🔎", layout="wide")
+    if UI_AUTH_REQUIRED and not st.user.is_logged_in:
+        st.login()
+        st.stop()
+    if UI_AUTH_REQUIRED:
+        identity_key = str(getattr(st.user, "sub", "") or getattr(st.user, "email", "") or "")
+        if st.session_state.get("identity_key") != identity_key:
+            for key in ("resume", "match", "session_token", "jobs", "delete_notice"):
+                st.session_state.pop(key, None)
+            st.session_state["identity_key"] = identity_key
+        if not identity_token():
+            st.error(
+                "OIDC is enabled but no ID token is exposed. Add `expose_tokens = \"id\"` "
+                "to the [auth] section of .streamlit/secrets.toml."
+            )
+            st.stop()
     st.title("TalentLens")
+    delete_notice = st.session_state.pop("delete_notice", None)
+    if delete_notice:
+        st.success(delete_notice)
     st.caption(
         "Explainable resume-to-job matching. Every recommendation cites evidence from your "
         "resume. Scores are relevance estimates, never probabilities of being hired, and no "
@@ -210,8 +248,13 @@ def main() -> None:
     with st.sidebar:
         st.header("Session")
         st.caption(f"API: {API_URL}")
+        if UI_AUTH_REQUIRED:
+            st.caption(f"Signed in as {getattr(st.user, 'email', 'SSO user')}")
+            if st.button("Sign out"):
+                st.logout()
+                st.stop()
         if st.button("Clear this UI session"):
-            for key in ("resume", "match", "session_token"):
+            for key in ("resume", "match", "session_token", "jobs"):
                 st.session_state.pop(key, None)
             st.rerun()
         st.divider()
@@ -328,7 +371,12 @@ def main() -> None:
         else:
             render_gaps(resume_id, [item["job_id"] for item in match["results"]])
     with tabs[2]:
-        ok, jobs = call("GET", "/api/v1/jobs")
+        if "jobs" not in st.session_state:
+            ok, jobs = call("GET", "/api/v1/jobs")
+            if ok:
+                st.session_state["jobs"] = jobs
+        jobs = st.session_state.get("jobs")
+        ok = jobs is not None
         if ok:
             for job in jobs:
                 with st.expander(f"{job['job_id']} · {job['title']} · {job['company']}"):
@@ -345,7 +393,9 @@ def main() -> None:
         if ok:
             for key in ("resume", "match"):
                 st.session_state.pop(key, None)
-            st.success("Resume and matching data deleted from the API database.")
+            st.session_state["delete_notice"] = (
+                "Resume and matching data deleted from the API database."
+            )
             st.rerun()
 
 

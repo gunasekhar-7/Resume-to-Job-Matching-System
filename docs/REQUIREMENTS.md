@@ -63,7 +63,7 @@ No automatic rejection.
 | FR-19 | Run counterfactual fairness tests on name/contact/identity changes | 3 | Done (70/70; not demographic fairness) |
 | FR-20 | Serve the workflow through a documented FastAPI backend and Streamlit UI | 4 | Done (locally verified) |
 | FR-21 | Support resume deletion and retention-based purge | 4 | Done |
-| FR-22 | Provide Docker, CI, observability and deployment documentation | 4 | Done (Compose syntax validated; stack not started) |
+| FR-22 | Provide Docker, CI, observability and deployment documentation | 4 | Done (Compose + PostgreSQL stack verified locally) |
 
 ## 4. Non-functional requirements
 

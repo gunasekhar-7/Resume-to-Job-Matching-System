@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: talentlens
       POSTGRES_USER: talentlens
-      POSTGRES_PASSWORD: talentlens-local-only
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -13,23 +13,33 @@ services:
       timeout: 5s
       retries: 12
     restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
 
   api:
     build: .
     command:
       - /bin/sh
       - -c
-      - python scripts/bootstrap_runtime.py && uvicorn api.main:app --host 0.0.0.0 --port 8000
+      - python scripts/migrate_database.py && python scripts/bootstrap_runtime.py && uvicorn api.main:app --host 0.0.0.0 --port 8000
     environment:
       TALENTLENS_ENV: docker
-      TALENTLENS_DATABASE_URL: postgresql+psycopg2://talentlens:talentlens-local-only@db:5432/talentlens
+      TALENTLENS_DATABASE_URL: postgresql+psycopg2://talentlens:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/talentlens
       TALENTLENS_CORS_ORIGINS: http://localhost:8501
       TALENTLENS_API_BASE_URL: http://localhost:8000
+      TALENTLENS_REQUIRE_AUTH: "true"
+      TALENTLENS_API_TOKEN: ${TALENTLENS_API_TOKEN:?Set TALENTLENS_API_TOKEN in .env}
+      # Local Compose is loopback-bound; set true when adding a TLS proxy.
+      TALENTLENS_COOKIE_SECURE: "false"
       TALENTLENS_RESUME_RETENTION_HOURS: "24"
+      TALENTLENS_RETENTION_PURGE_INTERVAL_SECONDS: ${TALENTLENS_RETENTION_PURGE_INTERVAL_SECONDS:-3600}
+      TALENTLENS_OIDC_ISSUER: ${TALENTLENS_OIDC_ISSUER:-}
+      TALENTLENS_OIDC_AUDIENCE: ${TALENTLENS_OIDC_AUDIENCE:-}
+      TALENTLENS_OIDC_JWKS_URL: ${TALENTLENS_OIDC_JWKS_URL:-}
+      TALENTLENS_REQUIRE_IDENTITY: ${TALENTLENS_REQUIRE_IDENTITY:-false}
       TALENTLENS_EMBEDDING_BACKEND: sentence_transformers
       TALENTLENS_EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ./artifacts:/app/artifacts
       - ./data/processed:/app/data/processed
@@ -45,6 +55,9 @@ services:
       retries: 20
       start_period: 120s
     restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs: [/tmp]
 
   frontend:
     build: .
@@ -57,13 +70,25 @@ services:
       - --server.headless=true
     environment:
       TALENTLENS_API_URL: http://api:8000
-      TALENTLENS_FRONTEND_API_URL: http://api:8000
+      TALENTLENS_API_TOKEN: ${TALENTLENS_API_TOKEN:?Set TALENTLENS_API_TOKEN in .env}
+      TALENTLENS_UI_AUTH: ${TALENTLENS_UI_AUTH:-false}
     ports:
-      - "8501:8501"
+      - "127.0.0.1:8501:8501"
+    volumes:
+      - ./.streamlit:/app/.streamlit:ro
     depends_on:
       api:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8501/_stcore/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs: [/tmp]
 
 volumes:
   pgdata:

@@ -104,6 +104,16 @@ class SessionRequiredError(TalentLensError):
     http_status = 401
 
 
+class AuthenticationError(TalentLensError):
+    code = "authentication_required"
+    http_status = 401
+
+
+class RetentionLimitError(TalentLensError):
+    code = "retention_limit_reached"
+    http_status = 429
+
+
 class InvalidRequestError(TalentLensError):
     code = "invalid_request"
     http_status = 422

@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import pytest
 
+from factories import mention
 from fakes import FakeEmbedder
 from talentlens.errors import EmptyDocumentError, IndexNotBuiltError
 from talentlens.matching.pipeline import MatchFilters, MatchingPipeline
 from talentlens.retrieval.reranker import LexicalReranker
-from talentlens.schemas import ResumeDocument
+from talentlens.retrieval.semantic_retriever import document_query_text
+from talentlens.schemas import ResumeDocument, ResumeMetadata, SourceFormat
 
 
 @pytest.fixture(scope="module")
@@ -142,6 +144,51 @@ def test_document_without_skills_still_matches_with_warning(pipeline):
     assert response.results
     assert any("No skills" in warning for warning in response.warnings)
     assert all(match.score_breakdown.required_coverage == 0.0 for match in response.results)
+
+
+def _headingless_document(text: str) -> ResumeDocument:
+    return ResumeDocument(
+        resume_id="headingless",
+        full_text=text,
+        sections={"header": [text.splitlines()[0]], "other": text.splitlines()[1:]},
+        skills=[mention("Python")],
+        metadata=ResumeMetadata(
+            source_format=SourceFormat.TXT,
+            source_filename="headingless.txt",
+            sha256="0" * 64,
+        ),
+    )
+
+
+def test_headingless_query_never_falls_back_to_raw_text():
+    document = _headingless_document(
+        "Priya Raghavan\npriya@example.com\nEducation: MIT\nBuilt Python services"
+    )
+    query = document_query_text(document)
+    assert query == "Skills: Python"
+    assert "Priya" not in query
+    assert "MIT" not in query
+    assert "priya@example.com" not in query
+
+
+def test_headingless_without_skills_returns_no_scoring_text():
+    document = _headingless_document(
+        "Priya Raghavan\npriya@example.com\nEducation: MIT\nBuilt Python services"
+    ).model_copy(update={"skills": []})
+    assert document_query_text(document) == ""
+
+
+def test_headingless_name_contact_and_education_do_not_change_ranking(pipeline):
+    base = _headingless_document(
+        "Priya Raghavan\npriya@example.com\nEducation: MIT\nBuilt Python services"
+    )
+    changed = _headingless_document(
+        "Daniel Okafor\ndaniel@example.org\nEducation: State College\nBuilt Python services"
+    )
+    first = pipeline.match(base, top_k=5)
+    second = pipeline.match(changed, top_k=5)
+    assert [item.job_id for item in first.results] == [item.job_id for item in second.results]
+    assert [item.score for item in first.results] == [item.score for item in second.results]
 
 
 def test_persisted_index_can_be_reloaded(pipeline, parsed_r01, job_documents, config, taxonomy):

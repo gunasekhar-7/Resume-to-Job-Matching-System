@@ -44,14 +44,19 @@ class SemanticRetriever:
 
 
 def document_query_text(document: ResumeDocument) -> str:
-    """Build the retrieval query from the richest available resume text.
+    """Build a scoring query that cannot include header or education text.
 
-    Skills, experience and summary are emphasised; contact/header text is excluded so
-    that an email address cannot influence similarity.
+    A heading-less document has no trusted professional sections. Falling back to its
+    raw text would let a name, contact details or institution influence retrieval and
+    section scoring. In that case only explicit skill names are safe to use; if none
+    were extracted, the caller must treat the semantic signal as unavailable.
     """
     parts: list[str] = []
     for section in ("summary", "skills", "experience", "projects"):
         text = document.section_text(section)
         if text:
             parts.append(text)
-    return "\n".join(parts) if parts else document.full_text
+    if parts:
+        return "\n".join(parts)
+    skills = sorted({skill.canonical for skill in document.skills if skill.canonical})
+    return f"Skills: {', '.join(skills)}" if skills else ""

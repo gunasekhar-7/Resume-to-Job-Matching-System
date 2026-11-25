@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import jwt
 import pytest
 from api.main import create_app
 from fastapi.testclient import TestClient
 
 from fakes import FakeEmbedder
+from talentlens.auth import OIDCVerifier
 from talentlens.matching.pipeline import MatchingPipeline
 from talentlens.storage import Storage
 
@@ -51,6 +54,8 @@ def test_health_readiness_and_metrics(api_app):
         health = client.get("/health")
         assert health.status_code == 200
         assert health.json()["status"] == "ok"
+        assert health.headers["x-content-type-options"] == "nosniff"
+        assert health.headers["x-frame-options"] == "DENY"
         ready = client.get("/ready")
         assert ready.status_code == 200
         metrics = client.get("/metrics")
@@ -161,3 +166,142 @@ def test_missing_session_and_unknown_resume(api_app):
         assert upload.status_code == 400
         # No cookie was created for the failed upload.
         assert client.get("/api/v1/resumes/missing").status_code == 401
+
+
+def test_service_bearer_authentication_is_enforced(api_app, tmp_path):
+    storage = Storage(f"sqlite:///{(tmp_path / 'auth.db').as_posix()}")
+    app = create_app(
+        config=api_app.state.config,
+        pipeline=api_app.state.pipeline,
+        storage=storage,
+        rate_limit_per_minute=1000,
+        api_token="test-service-token",
+        require_auth=True,
+    )
+    with TestClient(app) as client:
+        assert client.get("/api/v1/jobs").status_code == 401
+        assert client.get("/health").status_code == 200
+        assert client.get(
+            "/api/v1/jobs", headers={"Authorization": "Bearer wrong"}
+        ).status_code == 401
+        assert client.get(
+            "/api/v1/jobs",
+            headers={"Authorization": "Bearer test-service-token"},
+        ).status_code == 200
+
+
+def test_oversized_declared_body_is_rejected(api_app):
+    with TestClient(api_app) as client:
+        response = client.post(
+            "/api/v1/resumes",
+            content=b"x",
+            headers={"Content-Length": "999999999"},
+        )
+        assert response.status_code == 413
+        assert response.json()["error"]["code"] == "request_too_large"
+
+
+def test_oidc_identity_scopes_sessions(api_app, tmp_path, resume_bytes):
+    storage = Storage(f"sqlite:///{(tmp_path / 'identity.db').as_posix()}")
+    verifier = OIDCVerifier(
+        issuer="https://identity.example.test",
+        audience="talentlens",
+        hmac_secret="identity-test-secret-32-bytes-minimum",
+    )
+    app = create_app(
+        config=api_app.state.config,
+        pipeline=api_app.state.pipeline,
+        storage=storage,
+        rate_limit_per_minute=1000,
+        api_token="test-service-token",
+        require_auth=True,
+        oidc_verifier=verifier,
+    )
+
+    def headers(subject: str) -> dict[str, str]:
+        now = datetime.now(timezone.utc)
+        token = jwt.encode(
+            {
+                "sub": subject,
+                "iss": "https://identity.example.test",
+                "aud": "talentlens",
+                "iat": now,
+                "exp": now + timedelta(minutes=5),
+            },
+            "identity-test-secret-32-bytes-minimum",
+            algorithm="HS256",
+        )
+        return {
+            "Authorization": "Bearer test-service-token",
+            "X-TalentLens-Id-Token": token,
+        }
+
+    name, content = resume_bytes
+    with TestClient(app) as client:
+        assert client.get("/api/v1/resumes").status_code == 401
+        assert (
+            client.get(
+                "/api/v1/resumes",
+                headers={"Authorization": "Bearer test-service-token"},
+            ).status_code
+            == 401
+        )
+        uploaded = client.post(
+            "/api/v1/resumes",
+            files={"file": (name, content, "application/pdf")},
+            headers=headers("alice"),
+        )
+        assert uploaded.status_code == 201
+        assert client.get("/api/v1/resumes", headers=headers("alice")).status_code == 200
+        # The same browser cookie cannot be replayed under another identity.
+        assert client.get("/api/v1/resumes", headers=headers("bob")).status_code == 401
+
+
+def test_jobs_and_resumes_are_paginated(api_app, resume_bytes):
+    with TestClient(api_app) as client:
+        jobs = client.get("/api/v1/jobs", params={"limit": 2, "offset": 0})
+        assert jobs.status_code == 200
+        assert len(jobs.json()) == 2
+        assert int(jobs.headers["x-total-count"]) >= 2
+        assert client.get("/api/v1/jobs", params={"limit": 0}).status_code == 422
+        assert client.get("/api/v1/jobs", params={"limit": 201}).status_code == 422
+
+        name, content = resume_bytes
+        uploaded = _upload(client, name, content)
+        assert uploaded.status_code == 201
+        page = client.get("/api/v1/resumes", params={"limit": 1, "offset": 0})
+        assert page.status_code == 200
+        assert len(page.json()) == 1
+        assert page.headers["x-total-count"] == "1"
+        empty = client.get("/api/v1/resumes", params={"limit": 1, "offset": 1})
+        assert empty.status_code == 200
+        assert empty.json() == []
+
+
+def test_background_retention_sweep_purges_expired(api_app, tmp_path):
+    import copy
+    import time
+
+    from talentlens.config import Config
+    from talentlens.storage.models import SessionRecord
+
+    data = copy.deepcopy(api_app.state.config._data)
+    data.setdefault("privacy", {})["retention_purge_interval_seconds"] = 0.05
+    config = Config(data, api_app.state.config.path)
+    storage = Storage(f"sqlite:///{(tmp_path / 'sweep.db').as_posix()}")
+    app = create_app(
+        config=config,
+        pipeline=api_app.state.pipeline,
+        storage=storage,
+        rate_limit_per_minute=1000,
+    )
+
+    with TestClient(app):
+        token, session = storage.create_session()
+        with storage.session() as db:
+            row = db.get(SessionRecord, session.id)
+            row.expires_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=1)
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline and storage.get_session(token) is not None:
+            time.sleep(0.05)
+        assert storage.get_session(token) is None

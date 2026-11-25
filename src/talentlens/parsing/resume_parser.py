@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from talentlens.config import get_config
+from talentlens.config import Config, get_config
 from talentlens.errors import EmptyDocumentError, ParsingError
 from talentlens.ingestion.loader import UploadedDocument, load_path, read_text_file
 from talentlens.log import get_logger
@@ -22,7 +22,7 @@ from talentlens.parsing.cleaning import (
 )
 from talentlens.parsing.docx_parser import extract_docx
 from talentlens.parsing.pdf_parser import extract_pdf
-from talentlens.parsing.pii import detect_pii
+from talentlens.parsing.pii import detect_pii, redact_text, redact_with_placeholder
 from talentlens.parsing.sections import build_section_lists, detect_sections
 from talentlens.schemas import (
     ParsingStatus,
@@ -51,8 +51,9 @@ def parse_upload(
     resume_id: str | None = None,
     taxonomy: SkillTaxonomy | None = None,
     keep_page_break_markers: bool | None = None,
+    config: Config | None = None,
 ) -> ResumeDocument:
-    config = get_config()
+    config = config or get_config()
     parser_version = str(config.get("parsing.parser_version", "1.0.0"))
     warnings: list[str] = []
 
@@ -98,6 +99,22 @@ def parse_upload(
         warnings.append("No extractable text found; the document may be scanned or image-only")
         return _failed_document(upload, warnings, parser_version, page_count, ocr_used, ocr_confidence)
 
+    # Detect once, then redact before section/skill extraction so stored text, offsets,
+    # evidence and embeddings all refer to the same privacy-safe representation.
+    use_presidio = bool(config.get("privacy.presidio_enabled", False))
+    pii_scan = detect_pii(text, use_presidio=use_presidio)
+    if pii_scan.has_pii and bool(config.get("privacy.pii_redaction_enabled", True)):
+        placeholder = str(config.get("privacy.redaction_placeholder", "[REDACTED]"))
+        text = redact_with_placeholder(
+            text,
+            pii_scan,
+            placeholder,
+        )
+        source_path = Path(upload.filename)
+        source_filename = redact_text(source_path.stem, placeholder) + source_path.suffix
+    else:
+        source_filename = upload.filename
+
     if looks_like_warehouse_dump(text):
         warnings.append("Table content was extracted as very long lines; section structure may be unreliable")
 
@@ -119,7 +136,6 @@ def parse_upload(
             "parsing did not produce a usable resume"
         )
 
-    pii_scan = detect_pii(text, use_presidio=False)
     skills, extraction_warning = _safe_extract(text, section_result.spans, taxonomy)
     if extraction_warning:
         warnings.append(extraction_warning)
@@ -140,7 +156,7 @@ def parse_upload(
 
     metadata = ResumeMetadata(
         source_format=upload.source_format,
-        source_filename=upload.filename,
+        source_filename=source_filename,
         sha256=upload.sha256,
         page_count=page_count,
         parsing_status=status,
@@ -231,9 +247,15 @@ def parse_file(
     *,
     resume_id: str | None = None,
     taxonomy: SkillTaxonomy | None = None,
+    config: Config | None = None,
 ) -> ResumeDocument:
     upload = load_path(path)
-    return parse_upload(upload, resume_id=resume_id or Path(path).stem, taxonomy=taxonomy)
+    return parse_upload(
+        upload,
+        resume_id=resume_id or Path(path).stem,
+        taxonomy=taxonomy,
+        config=config,
+    )
 
 
 def parse_bytes(
@@ -242,11 +264,12 @@ def parse_bytes(
     *,
     resume_id: str | None = None,
     taxonomy: SkillTaxonomy | None = None,
+    config: Config | None = None,
 ) -> ResumeDocument:
     from talentlens.ingestion.loader import validate_upload
 
     upload = validate_upload(filename, content)
-    return parse_upload(upload, resume_id=resume_id, taxonomy=taxonomy)
+    return parse_upload(upload, resume_id=resume_id, taxonomy=taxonomy, config=config)
 
 
 def ensure_usable(document: ResumeDocument) -> None:

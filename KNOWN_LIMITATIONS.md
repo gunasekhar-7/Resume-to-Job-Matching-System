@@ -63,22 +63,35 @@ This file is the single maintained list. Phase reports add detail but must not c
 ## Product and deployment
 
 25. **Recruiter Mode is not implemented.**
-26. **Session-scoped access is not authentication.** A random cookie scopes one browser
-    session; there are no accounts, passwords or multi-tenant authorization. Do not deploy as a
-    multi-user service without adding authentication.
+26. **OIDC identity has not been exercised against a live provider.** Automated tests cover an
+    injected HMAC verifier and a real RS256 token fetched through a local JWKS endpoint. The
+    API binds `issuer#subject` to the session; a target-provider login, logout and key-rotation
+    test is still required. The service token remains deployment-wide.
 27. **Single-node deployment.** No horizontal scaling, queue, distributed rate limit or
     distributed index.
 28. **No production load testing.** Latency numbers are local measurements on the documented
     host, not capacity guarantees.
-29. **Docker Compose is unverified.** Configs and a bootstrap script exist, but Docker was not
-    available in this environment; the Compose stack, PostgreSQL persistence and container
-    health checks have not been run here.
+29. **Docker Compose is verified only on this host.** The CPU-only image builds, and the
+    three-service stack passed health checks, PostgreSQL migration, upload/match/latest/list
+    requests and a Streamlit render. Restart/recreate behavior, other Docker hosts and cloud
+    deployment remain unverified.
 30. **No cloud deployment claimed.** Deployment documentation covers local and Compose
     procedures only.
-31. **Retention purge runs at API startup and on demand.** There is no built-in scheduler.
-    Production needs a scheduled purge and a backup/restore policy.
+31. **Retention has a periodic sweep but no external job guarantee.** The API starts one
+    background purge task (default hourly) and purges at startup; a process that is stopped
+    before a sweep still needs an external scheduler and a backup/restore policy.
 32. **Per-process rate limiting.** It is not shared across workers or replicas.
 33. **Streamlit is a server-side client.** The API cookie is held in Streamlit session state;
     scaling the UI requires session affinity or an external session store.
 34. **No CI for model-heavy benchmarks.** CI uses the deterministic fake embedder; real-model
     benchmark scripts are explicit and host-dependent.
+35. **Structured PII only.** The default scanner redacts email, phone and URLs, not personal
+    names or arbitrary free-text identifiers. A reviewed NER policy and DPIA are required for
+    real candidate data.
+36. **Heading-less resumes lose semantic context.** They are scored from extracted skills
+    and experience only, never from raw full text. This protects against header/education
+    leakage but can make rankings less precise for unstructured documents.
+37. **Migration execution has two paths.** Compose runs `scripts/migrate_database.py` before
+    startup, while plain application startup still uses `create_all` for local/test
+    convenience. Fresh and pre-Alembic SQLite paths are tested; PostgreSQL migration and
+    `alembic check` are exercised locally and in CI.

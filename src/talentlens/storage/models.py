@@ -55,3 +55,19 @@ class MatchRunRecord(Base):
     response_json: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     resume: Mapped[ResumeRecord] = relationship(back_populates="match_runs")
+
+
+class SessionIdentityRecord(Base):
+    """Optional per-user owner of a browser session.
+
+    Kept in a separate table so existing anonymous-session databases can add identity
+    support without rewriting the sessions table in place.
+    """
+
+    __tablename__ = "session_identities"
+
+    session_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("sessions.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[str] = mapped_column(String(512), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

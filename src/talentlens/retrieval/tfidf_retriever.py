@@ -108,6 +108,26 @@ class TfidfRetriever:
         row = self._job_ids.index(job_id)
         return float((self._matrix[row] @ vector.T).toarray().ravel()[0])
 
+    def scores(self, query: str, job_ids: list[str] | None = None) -> dict[str, float]:
+        """Score several jobs while transforming the query only once.
+
+        The per-job ``score`` method is retained for evaluation call sites; the API
+        matching path uses this method so a request does not pay for a new sparse
+        vectorisation per candidate.
+        """
+        if self._matrix is None or self._vectorizer is None:
+            raise IndexLoadError("TF-IDF retriever is not fitted or loaded")
+        requested = list(job_ids) if job_ids is not None else list(self._job_ids)
+        if not requested:
+            return {}
+        positions = {job_id: index for index, job_id in enumerate(self._job_ids)}
+        rows = [(job_id, positions[job_id]) for job_id in requested if job_id in positions]
+        if not rows:
+            return {}
+        vector = self._vectorizer.transform([query or ""])
+        values = np.asarray((self._matrix[[row for _, row in rows]] @ vector.T).todense()).ravel()
+        return {job_id: float(value) for (job_id, _), value in zip(rows, values, strict=False)}
+
     # ------------------------------------------------------------------ persistence
     def save(self, directory: str | Path) -> Path:
         import joblib

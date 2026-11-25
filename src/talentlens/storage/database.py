@@ -5,23 +5,30 @@ import secrets
 import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from sqlalchemy import create_engine, delete, event, select, text
+from sqlalchemy import create_engine, delete, event, func, select, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from talentlens.errors import RetentionLimitError
 from talentlens.log import get_logger
 from talentlens.schemas import ResumeDocument
-from talentlens.storage.models import Base, MatchRunRecord, ResumeRecord, SessionRecord
+from talentlens.storage.models import (
+    Base,
+    MatchRunRecord,
+    ResumeRecord,
+    SessionIdentityRecord,
+    SessionRecord,
+)
 
 logger = get_logger("storage")
 
 
 def _utcnow() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def _hash_token(token: str) -> str:
@@ -60,10 +67,17 @@ def build_session_factory(engine: Engine) -> sessionmaker[Session]:
 
 
 class Storage:
-    def __init__(self, database_url: str, *, retention_hours: int = 24) -> None:
+    def __init__(
+        self,
+        database_url: str,
+        *,
+        retention_hours: int = 24,
+        max_resumes_per_session: int = 20,
+    ) -> None:
         self.engine = build_engine(database_url)
         self.factory = build_session_factory(self.engine)
         self.retention_hours = retention_hours
+        self.max_resumes_per_session = max(0, int(max_resumes_per_session))
 
     def init(self) -> None:
         Base.metadata.create_all(self.engine)
@@ -93,7 +107,7 @@ class Storage:
             return False
 
     # ------------------------------------------------------------------ sessions
-    def create_session(self) -> tuple[str, SessionRecord]:
+    def create_session(self, user_id: str | None = None) -> tuple[str, SessionRecord]:
         token = secrets.token_urlsafe(32)
         record = SessionRecord(
             id=str(uuid.uuid4()),
@@ -103,29 +117,34 @@ class Storage:
         with self.session() as db:
             db.add(record)
             db.flush()
+            if user_id:
+                db.add(SessionIdentityRecord(session_id=record.id, user_id=user_id[:512]))
+            db.flush()
             return token, record
 
-    def get_session(self, token: str) -> SessionRecord | None:
+    def get_session(self, token: str, *, user_id: str | None = None) -> SessionRecord | None:
         if not token:
             return None
         with self.session() as db:
             record = db.scalar(select(SessionRecord).where(SessionRecord.token_hash == _hash_token(token)))
             if record is None or record.expires_at <= _utcnow():
                 return None
+            identity = db.get(SessionIdentityRecord, record.id)
+            if user_id is None:
+                # Anonymous access must never inherit an identity-bound session.
+                return None if identity is not None else record
+            if identity is None or identity.user_id != user_id[:512]:
+                return None
             return record
 
     def purge_expired(self) -> int:
         now = _utcnow()
         with self.session() as db:
-            expired_sessions = list(db.scalars(select(SessionRecord.id).where(SessionRecord.expires_at <= now)))
-            # Query resume ids before deleting sessions: the FK cascade removes those
-            # resumes, but they still count as records purged by this call.
-            expired_resumes = list(db.scalars(select(ResumeRecord.id).where(ResumeRecord.expires_at <= now)))
-            if expired_sessions:
-                db.execute(delete(SessionRecord).where(SessionRecord.id.in_(expired_sessions)))
-            if expired_resumes:
-                db.execute(delete(ResumeRecord).where(ResumeRecord.id.in_(expired_resumes)))
-            return len(expired_sessions) + len(expired_resumes)
+            # Delete expired resumes directly first so their rowcount is counted
+            # before any remaining expired sessions trigger foreign key cascades.
+            res_resumes = db.execute(delete(ResumeRecord).where(ResumeRecord.expires_at <= now))
+            res_sessions = db.execute(delete(SessionRecord).where(SessionRecord.expires_at <= now))
+            return int(res_sessions.rowcount or 0) + int(res_resumes.rowcount or 0)
 
     # ------------------------------------------------------------------ resumes
     def save_resume(self, session_id: str, document: ResumeDocument) -> ResumeRecord:
@@ -138,6 +157,18 @@ class Storage:
                 )
             )
             if record is None:
+                if self.max_resumes_per_session:
+                    active = db.scalar(
+                        select(func.count(ResumeRecord.id)).where(
+                            ResumeRecord.session_id == session_id,
+                            ResumeRecord.expires_at > now,
+                        )
+                    ) or 0
+                    if active >= self.max_resumes_per_session:
+                        raise RetentionLimitError(
+                            "This session has reached its resume retention limit.",
+                            details={"max_resumes_per_session": self.max_resumes_per_session},
+                        )
                 record = ResumeRecord(
                     resume_id=document.resume_id,
                     session_id=session_id,
@@ -171,18 +202,37 @@ class Storage:
                 return None
             return record
 
-    def list_resumes(self, session_id: str) -> list[ResumeRecord]:
+    def list_resumes(
+        self, session_id: str, *, limit: int | None = None, offset: int = 0
+    ) -> list[ResumeRecord]:
         now = _utcnow()
         with self.session() as db:
-            return list(
-                db.scalars(
-                    select(ResumeRecord)
+            query = (
+                select(ResumeRecord)
+                .where(
+                    ResumeRecord.session_id == session_id,
+                    ResumeRecord.expires_at > now,
+                )
+                .order_by(ResumeRecord.created_at.desc())
+                .offset(offset)
+            )
+            if limit is not None:
+                query = query.limit(limit)
+            return list(db.scalars(query))
+
+    def count_resumes(self, session_id: str) -> int:
+        now = _utcnow()
+        with self.session() as db:
+            return int(
+                db.scalar(
+                    select(func.count())
+                    .select_from(ResumeRecord)
                     .where(
                         ResumeRecord.session_id == session_id,
                         ResumeRecord.expires_at > now,
                     )
-                    .order_by(ResumeRecord.created_at.desc())
                 )
+                or 0
             )
 
     def delete_resume(self, resume_id: str, *, session_id: str) -> bool:

@@ -78,7 +78,6 @@ for _section, _aliases in SECTION_ALIASES.items():
     for _alias in _aliases:
         _ALIAS_TO_SECTION.setdefault(normalize_heading(_alias), _section)
 
-_LINE_SPLIT_RE = re.compile(r"\r\n|\n|\r")
 _COMBINED_SPLIT_RE = re.compile(r"\s+(?:and|&|/)\s+", re.IGNORECASE)
 
 
@@ -100,11 +99,12 @@ class _Line:
 def _lines_with_offsets(text: str) -> list[_Line]:
     lines: list[_Line] = []
     offset = 0
-    for raw in _LINE_SPLIT_RE.split(text):
+    for raw in text.splitlines(keepends=True):
+        content = raw.rstrip("\r\n")
         start = offset
-        end = start + len(raw)
-        lines.append(_Line(text=raw.strip(), start=start, end=end))
-        offset = end + 1
+        end = start + len(content)
+        lines.append(_Line(text=content.strip(), start=start, end=end))
+        offset += len(raw)
     return lines
 
 

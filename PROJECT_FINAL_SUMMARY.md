@@ -16,7 +16,7 @@ TalentLens is not an automated hiring system. Recruiter Mode is out of scope.
 | 1 - Foundation and document intelligence | Complete | PDF/DOCX/TXT parsing, sections, 214-skill taxonomy, job import, 140 labels, quality reports. |
 | 2 - Retrieval and matching | Complete | TF-IDF, MiniLM embeddings, exact FAISS, skills/experience, hybrid scoring, optional reranker. |
 | 3 - Explainability, evaluation, responsible AI | Complete | Sentence evidence, skill gaps, held-out metrics, weight freeze, 70 fairness checks, error analysis and docs. |
-| 4 - Product engineering | Complete (single-node scope) | FastAPI, SQLAlchemy/PostgreSQL or SQLite, session-scoped deletion/retention, Streamlit, Docker Compose, CI, observability. |
+| 4 - Product engineering | Complete (single-node scope) | FastAPI, SQLAlchemy/PostgreSQL or SQLite, session-scoped deletion/retention, optional OIDC identity, Alembic baseline, Streamlit, Docker Compose, CI, observability. |
 
 ## Measured results (held-out test, 40 judged pairs)
 
@@ -47,18 +47,22 @@ claim is made.
 - Explicit FAISS job-ID map, versioned indexes and a NumPy exact fallback.
 - Evidence-first explanations: no sentence above the similarity floor means an explicit
   "no evidence" note, not invented text.
-- Session-scoped API storage with retention and cascade deletion; PII values are not
-  logged or scored.
+- Service bearer authentication (production/Compose fails closed), optional verified OIDC
+  identity bound to sessions (HMAC tests plus a real RS256/JWKS test), session-scoped storage
+  with scheduled retention and cascade deletion, bounded pagination, per-session quotas and
+  PII redaction before storage.
 - Per-request IDs, structured errors, rate limiting, origin checks, security headers,
   `/health`, `/ready` and Prometheus `/metrics`.
-- CI runs Ruff, compile checks and the full test suite without downloading models.
+- CI runs Ruff, compile checks, an Alembic upgrade/schema check, a PostgreSQL storage
+  round-trip and the full test suite without downloading models.
 
 ## Honest limitations
 
 Synthetic-only data, 40 held-out pairs, single annotator, near-ceiling metrics, English
 only, regex experience parsing, exact vector search untested at scale, per-process rate
-limiting, no multi-user authentication, and no Docker or cloud deployment verified in this
-environment. See [`KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md) for the maintained list.
+limiting, final live-provider OIDC validation, and no full Docker or cloud deployment
+verified in this environment. See [`KNOWN_LIMITATIONS.md`](KNOWN_LIMITATIONS.md) for the
+maintained list.
 
 ## Where to look
 
