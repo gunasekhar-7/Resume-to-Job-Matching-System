@@ -18,8 +18,8 @@ COPY requirements.txt requirements.lock ./
 # CUDA/NVIDIA libraries that this CPU-only service never uses.
 RUN pip install --upgrade pip \
     && pip install --index-url https://download.pytorch.org/whl/cpu \
-        --extra-index-url https://pypi.org/simple torch
-RUN pip install -r requirements.lock
+        --extra-index-url https://pypi.org/simple "$(grep '^torch==' requirements.lock)" \
+    && pip install -r requirements.lock
 
 COPY pyproject.toml README.md ./
 COPY alembic.ini ./
